@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.15
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyRestaurant", "WebApiJwtAuthDemo\MyRestaurant.csproj", "{C1C5884C-5689-4C3D-B21B-CC44E694DCA4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C1C5884C-5689-4C3D-B21B-CC44E694DCA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1C5884C-5689-4C3D-B21B-CC44E694DCA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1C5884C-5689-4C3D-B21B-CC44E694DCA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1C5884C-5689-4C3D-B21B-CC44E694DCA4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2CCD1E0E-FB80-43AB-921D-BBF2C9E3772B}
+	EndGlobalSection
+EndGlobal
