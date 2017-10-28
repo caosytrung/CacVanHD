@@ -155,11 +155,6 @@ namespace MyRestuarant.Controllers
         private static long ToUnixEpochDate(DateTime date)
           => (long)Math.Round((date.ToUniversalTime() - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds);
 
-        /// <summary>
-        /// IMAGINE BIG RED WARNING SIGNS HERE!
-        /// You'd want to retrieve claims through your claims provider
-        /// in whatever way suits you, the below is purely for demo purposes!
-        /// </summary>
         private Task<ClaimsIdentity> GetClaimsIdentity(ApplicationUser user)
         {
             Users u = mContext.Users.Where(item => item.Username ==

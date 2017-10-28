@@ -18,9 +18,42 @@ namespace MyRestaurant.Controllers
             mContext = context;
         }
 
+        [HttpGet]     
+        public IEnumerable<Role> List()
+        {         
+            Role[] arr_role = mContext.Role.ToArray();
+            for (int i=0; i < arr_role.Length; i++)
+            {
+                int role_id = arr_role[i].Id;
+                Users[] users = mContext.Users.Where(u => u.RoleId == role_id).ToArray();
+                foreach (Users user in users)
+                {
+                    arr_role[i].Users.Add(user);
+                }             
+            }
+            List<Role> roles = arr_role.ToList();
+            return roles;
+        }
+
+        [HttpGet("{id}", Name = "GetTodo")]     
+        public IActionResult Get(long id)
+        {
+            var role = mContext.Role.FirstOrDefault(t => t.Id == id);
+            if (role == null)
+            {
+                return NotFound();
+            }
+            Users[] users = mContext.Users.Where(u => u.RoleId == role.Id).ToArray();
+            foreach (Users user in users)
+            {
+                role.Users.Add(user);
+            }
+            return new ObjectResult(role);
+        }
+
         [HttpPost]
-        [ActionName("add")]
-        public IActionResult AddRole([FromBody] Role role)
+        [ActionName("create")]
+        public IActionResult Create([FromBody] Role role)
         {
             if (role == null)
             {
@@ -43,44 +76,45 @@ namespace MyRestaurant.Controllers
                 return new ObjectResult("Add role successfully!");
             }
         }
-        [HttpDelete("{location}")]
+
+        [HttpDelete("{id}")]
         [ActionName("delete")]
-        public IActionResult Delete(string location)
+        public IActionResult Delete(int id)
         {
-            var table = mContext.Rtable.FirstOrDefault(t => t.LocationTable == location);
-            if (table == null)
+            var role = mContext.Role.FirstOrDefault(t => t.Id == id);
+            if (role == null)
             {
-                return new ObjectResult("Delete Error ,Table in location is not exist!");
+                return new ObjectResult("Delete Error ,Role is not exist!");
             }
 
-            mContext.Rtable.Remove(table);
+            mContext.Role.Remove(role);
             mContext.SaveChanges();
-            return new ObjectResult("Delete Table Successfully !");
+            return new ObjectResult("Delete role Successfully !");
         }
-        [HttpPut]
-        [ActionName("modify")]
-        public IActionResult ChangePro(long id, [FromBody] Rtable table)
+        [HttpPut("{id}")]
+        [ActionName("update")]
+        public IActionResult Update(long id, [FromBody] Role role)
         {
-            if (table == null)
+            if (role == null)
             {
                 return BadRequest();
             }
 
-            var tmp = mContext.Rtable.FirstOrDefault(item => item.Id == table.Id);
-            if (tmp == null)
+            if(role.Name == "")
             {
-                return new ObjectResult("Table Not Found !");
+                return BadRequest("Role name must be required");
             }
 
-            tmp.NumberOfSeat = table.NumberOfSeat;
-            tmp.Available = table.Available;
-            tmp.TypeTable = table.TypeTable;
-            tmp.LocationTable = table.LocationTable;
-            tmp.Thumbnail = table.Thumbnail;
-            mContext.Rtable.Update(tmp);
+            var tmp = mContext.Role.FirstOrDefault(item => item.Id == id);
+            if (tmp == null)
+            {
+                return new ObjectResult("Role Not Found !");
+            }
+
+            tmp.Name = role.Name;         
             mContext.SaveChanges();
 
-            return new ObjectResult("update Table Successfully !");
+            return new ObjectResult("Update role Successfully !");
         }
     }
 }
