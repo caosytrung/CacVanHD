@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MyRestaurant.Models;
+using MyRestaurant.Options;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,13 +15,15 @@ namespace MyRestaurant.Controllers
     {
 
         private readonly MyRestaurantContext mContext;
+        private Response response;
         public CategoryController(MyRestaurantContext context)
         {
             mContext = context;
+            response = new Response();
         }
      
         [HttpGet]
-        public IEnumerable<Category> List()
+        public IActionResult List()
         {
             Category[] categories = mContext.Category.ToArray();
             for(int i=0; i < categories.Length; i++)
@@ -31,8 +34,11 @@ namespace MyRestaurant.Controllers
                 {
                     categories[i].Dish.Add(dish);
                 }
-            }          
-            return categories.ToList();
+            }
+            response.code = 1000;
+            response.message = "OK";
+            response.data = categories;       
+            return new ObjectResult(response);
         }
 
         // GET api/values/5
@@ -42,14 +48,23 @@ namespace MyRestaurant.Controllers
             var category = mContext.Category.FirstOrDefault(t => t.Id == id);
             if (category == null)
             {
-                return NotFound();
+                response.code = 1001;
+                response.message = "Category not found";
+                response.data = null;
             }
-            Dish[] dishes = mContext.Dish.Where(d => d.CategoryId == category.Id).ToArray();
-            foreach (Dish dish in dishes)
+            else
             {
-                category.Dish.Add(dish);
+                Dish[] dishes = mContext.Dish.Where(d => d.CategoryId == category.Id).ToArray();
+                foreach (Dish dish in dishes)
+                {
+                    category.Dish.Add(dish);
+                }
+                response.code = 1000;
+                response.message = "OK";
+                response.data = category;
             }
-            return new ObjectResult(category);
+           
+            return new ObjectResult(response);
         }
 
         // POST api/values
@@ -58,24 +73,40 @@ namespace MyRestaurant.Controllers
         {
             if (category == null)
             {
-                return BadRequest();
+                response.code = 1001;
+                response.message = "Input is null";
+                response.data = null;
+                return new ObjectResult(response);
             }
-            if (category.Name == "")
+            else if (category.Name == "" || category.Name == null)
             {
-                return BadRequest("Category name must be required!");
-            }
-
-            Role tmp = mContext.Role.Where(item => item.Name == category.Name).SingleOrDefault();
-            if (tmp != null)
-            {
-                return new ObjectResult("This category has been existed!");
+                response.code = 1001;
+                response.message = "Category name must be required";
+                response.data = null;
+                return new ObjectResult(response);
             }
             else
-            {              
-                mContext.Category.Add(category);
-                mContext.SaveChanges();
-                return new ObjectResult("Add category successfully!");
+            {
+                Category tmp = mContext.Category.Where(item => item.Name == category.Name).SingleOrDefault();
+                if (tmp != null)
+                {
+                    response.code = 1001;
+                    response.message = "Category has been existed";
+                    response.data = null;
+                    return new ObjectResult(response);
+                }
+                else
+                {
+                    mContext.Category.Add(category);
+                    mContext.SaveChanges();
+                    response.code = 1000;
+                    response.message = "OK";
+                    response.data = null;
+                    return new ObjectResult(response);
+                }
             }
+          
+
         }
 
         [HttpDelete("{id}")]
@@ -85,37 +116,59 @@ namespace MyRestaurant.Controllers
             var category = mContext.Category.FirstOrDefault(t => t.Id == id);
             if (category == null)
             {
-                return new ObjectResult("Delete Error ,Role is not exist!");
+                response.code = 1001;
+                response.message = "Fail! Category is not existed";
+                response.data = null;
+                return new ObjectResult(response);
             }
-
+           
             mContext.Category.Remove(category);
             mContext.SaveChanges();
-            return new ObjectResult("Delete role Successfully !");
+            response.code = 1000;
+            response.message = "OK";
+            response.data = null;
+            return new ObjectResult(response);                           
         }
+
         [HttpPut("{id}")]
         [ActionName("update")]
         public IActionResult Update(long id, [FromBody] Category category)
         {
             if (category == null)
             {
-                return BadRequest();
+                response.code = 1001;
+                response.message = "Input is null";
+                response.data = null;
+                return new ObjectResult(response);
             }
-
-            if (category.Name == "")
+            else if (category.Name == "")
             {
-                return BadRequest("Category name must be required");
+                response.code = 1001;
+                response.message = "Category name must be required";
+                response.data = null;
+                return new ObjectResult(response);
             }
-
-            var tmp = mContext.Role.FirstOrDefault(item => item.Id == id);
-            if (tmp == null)
+            else
             {
-                return new ObjectResult("Category Not Found !");
+                var tmp = mContext.Category.FirstOrDefault(item => item.Id == id);
+                if (tmp == null)
+                {
+                    response.code = 1001;
+                    response.message = "Category Not Found !";
+                    response.data = null;
+                    return new ObjectResult(response);
+                }
+                else
+                {
+                    tmp.Name = category.Name;
+                    mContext.SaveChanges();
+                    response.code = 1000;
+                    response.message = "OK";
+                    response.data = null;
+                    return new ObjectResult(response);
+                }
+
             }
-
-            tmp.Name = category.Name;
-            mContext.SaveChanges();
-
-            return new ObjectResult("Update role Successfully !");
         }
     }
 }
