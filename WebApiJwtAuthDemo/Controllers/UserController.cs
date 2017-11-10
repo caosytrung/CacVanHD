@@ -23,10 +23,12 @@ namespace MyRestuarant.Controllers
         private readonly JwtIssuerOptions _jwtOptions;
         private readonly ILogger _logger;
         private readonly JsonSerializerSettings _serializerSettings;
+        private Response response;
 
         public UserController(MyRestaurantContext context, IOptions<JwtIssuerOptions> jwtOptions, ILoggerFactory loggerFactory)
         {
             mContext = context;
+            response = new Response();
             _jwtOptions = jwtOptions.Value;
             ThrowIfInvalidOptions(_jwtOptions);
 
@@ -38,46 +40,67 @@ namespace MyRestuarant.Controllers
             };
         }
         [HttpPost]
-        [ActionName("register")]
+        [ActionName("create")]
         public IActionResult Register([FromBody] Users user)
         {
             if (!Utils.IsValidEmail(user.Email))
             {
-                return new ObjectResult("Invalid Email");
+
+
+                 response.code = 1001;
+                response.message = "Invalid Email";
+                response.data = null;
+                return new ObjectResult(response);
             }
-            else if (user.Password.Length < 6 || user.Username.Length < 6)
+            else if (user.Password.Length < 6 || user.Username.Length < 4)
             {
-                return new ObjectResult("Invalid Email or Password");
+                response.code = 1001;
+                response.message = "Email or password is incorrect";
+                response.data = null;
+                    return new ObjectResult(response);
             }
             int idRole = user.RoleId;
 
             Role role = mContext.Role.FirstOrDefault(t => t.Id == idRole);
-            System.Diagnostics.Debug.WriteLine(role.Users.Count() + "  aappppp");
+           
             bool isExistUsername = mContext.Users.Any(item => item.Username == user.Username );
 
             bool isExistEmail = mContext.Users.Any(item => item.Email == user.Email);
             if (isExistUsername)
             {
-                return new ObjectResult("Your username is already exist !!");
+                
+                response.code = 1001;
+                response.message = "Your username is already exist";
+                response.data = null;
+                return new ObjectResult(response);
             }
             if (isExistEmail)
             {
-                return new ObjectResult("Your Email is already used !!");
+             
+                response.code = 1001;
+                response.message = "Your Email is already used";
+                response.data = null;
+                return new ObjectResult(response);
             }
             //  return BadRequest();
-
-            role.Users.Add(user);
-            System.Diagnostics.Debug.WriteLine(role.Users.Count() + "  aappppp");
-            System.Diagnostics.Debug.WriteLine("roleeeee " + role.Id);
+          
+           
+           
+            //role.Users.Add(user);
+            mContext.Users.Add(user);
+          
             mContext.SaveChanges();
             try
             {
-                string a = JsonConvert.SerializeObject(user, Formatting.None,
-                        new JsonSerializerSettings()
-                        {
-                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                        });
-                return new ObjectResult(a);
+                //string a = JsonConvert.SerializeObject(user, Formatting.None,
+                //        new JsonSerializerSettings()
+                //        {
+                //            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                //        });
+                response.code = 1000;
+                response.message = "OK";
+                response.data = user;
+                return new ObjectResult(response);
             }
             catch (Exception e)
             {

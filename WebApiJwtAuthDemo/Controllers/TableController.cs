@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyRestaurant.Models;
+using MyRestaurant.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +11,15 @@ namespace MyRestaurant.Controllers
     public class TableController : Controller
     {
         private readonly MyRestaurantContext mContext;
+        private Response response;
         public TableController(MyRestaurantContext context)
         {
             mContext = context;
+            response = new Response();
         }
 
         [HttpPost]
-        [ActionName("add")]
+        [ActionName("create")]
         public IActionResult AddTable([FromBody] Rtable table)
         {
             if(table == null)
@@ -27,13 +30,20 @@ namespace MyRestaurant.Controllers
             Rtable tmp = mContext.Rtable.Where(item => item.LocationTable == table.LocationTable).SingleOrDefault();
             if(tmp != null)
             {
-                return new ObjectResult("Location's table is used !");
+               
+                response.code = 1001;
+                response.message = "Location's table is used";
+                response.data = null;
+                return new ObjectResult(response);
             }
             else
             {
                 mContext.Rtable.Add(table);
                 mContext.SaveChanges();
-                return new ObjectResult("Add Table successfully !" );
+                response.code = 1001;
+                response.message = "Add table successfully !";
+                response.data = table;
+                return new ObjectResult(response);
             }
         }
         [HttpDelete("{location}")]
@@ -43,15 +53,24 @@ namespace MyRestaurant.Controllers
             var table = mContext.Rtable.FirstOrDefault(t => t.LocationTable == location);
             if (table == null)
             {
-                return new ObjectResult("Delete Error ,Table in location is not exist!" );
+             
+                response.code = 1001;
+                response.message = "Delete Error, Table in location is not exist!";
+                response.data = null;
+                return new ObjectResult(response);
             }
 
             mContext.Rtable.Remove(table);
             mContext.SaveChanges();
-            return new ObjectResult("Delete Table Successfully !");
+            response.code = 1001;
+            response.message = "Delete Table Successfully !";
+            response.data = table;
+            return new ObjectResult(response);
+          
+
         }
         [HttpPut]
-        [ActionName("modify")]
+        [ActionName("update")]
         public IActionResult ChangePro(long id, [FromBody] Rtable table)
         {
             if (table == null )
@@ -62,7 +81,11 @@ namespace MyRestaurant.Controllers
             var tmp = mContext.Rtable.FirstOrDefault(item => item.Id == table.Id);
             if(tmp == null)
             {
-                return new ObjectResult("Table Not Found !");
+              
+                response.code = 1001;
+                response.message = "Table Not Found !";
+                response.data = null;
+                return new ObjectResult(response);
             }
 
             tmp.NumberOfSeat = table.NumberOfSeat;
@@ -73,7 +96,12 @@ namespace MyRestaurant.Controllers
             mContext.Rtable.Update(tmp);
             mContext.SaveChanges();
 
-            return new ObjectResult("update Table Successfully !");
+          
+
+            response.code = 1000;
+            response.message = "Update Table Successfully !";
+            response.data = tmp;
+            return new ObjectResult(response);
         }
 
 
