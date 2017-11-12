@@ -14,7 +14,7 @@ namespace MyRestaurant.Models
         public string CustomerName { get; set; }
         public int EmployeeId { get; set; }
         public byte[] CreatAt { get; set; }
-        public decimal? Total { get; set; }
+        public decimal Total { get; set; }
 
         public Employee Employee { get; set; }
         public ICollection<SaleBillDetail> SaleBillDetail { get; set; }

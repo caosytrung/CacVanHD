@@ -15,7 +15,7 @@ namespace MyRestaurant.Controllers
     {
 
         private readonly MyRestaurantContext mContext;
-        private Response response;
+        protected Response response;
         public CategoryController(MyRestaurantContext context)
         {
             mContext = context;

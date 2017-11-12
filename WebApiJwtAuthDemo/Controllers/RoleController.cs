@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MyRestaurant.Models;
+using MyRestaurant.Options;
 
 namespace MyRestaurant.Controllers
 {
@@ -13,42 +14,56 @@ namespace MyRestaurant.Controllers
     public class RoleController : Controller
     {
         private readonly MyRestaurantContext mContext;
+        protected Response response;
         public RoleController(MyRestaurantContext context)
         {
             mContext = context;
+            response = new Response();
         }
 
         [HttpGet]     
-        public IEnumerable<Role> List()
+        public IActionResult List()
         {         
-            Role[] arr_role = mContext.Role.ToArray();
-            for (int i=0; i < arr_role.Length; i++)
+            Role[] roles = mContext.Role.ToArray();
+            for (int i=0; i < roles.Length; i++)
             {
-                int role_id = arr_role[i].Id;
+                int role_id = roles[i].Id;
                 Users[] users = mContext.Users.Where(u => u.RoleId == role_id).ToArray();
                 foreach (Users user in users)
                 {
-                    arr_role[i].Users.Add(user);
+                    roles[i].Users.Add(user);
                 }             
             }
-            List<Role> roles = arr_role.ToList();
-            return roles;
+            response.code = 1000;
+            response.message = "OK";
+            response.data = roles;
+            return new ObjectResult(response);
         }
 
-        [HttpGet("{id}", Name = "GetTodo")]     
+        [HttpGet("{id}")]     
         public IActionResult Get(long id)
         {
             var role = mContext.Role.FirstOrDefault(t => t.Id == id);
             if (role == null)
             {
-                return NotFound();
+                response.code = 1001;
+                response.message = "Role not found";
+                response.data = null;
+              
             }
-            Users[] users = mContext.Users.Where(u => u.RoleId == role.Id).ToArray();
-            foreach (Users user in users)
+            else
             {
-                role.Users.Add(user);
+                Users[] users = mContext.Users.Where(u => u.RoleId == role.Id).ToArray();
+                foreach (Users user in users)
+                {
+                    role.Users.Add(user);
+                }
+                response.code = 1000;
+                response.message = "OK";
+                response.data = role;
             }
-            return new ObjectResult(role);
+            
+            return new ObjectResult(response);
         }
 
         [HttpPost]
@@ -57,24 +72,37 @@ namespace MyRestaurant.Controllers
         {
             if (role == null)
             {
-                return BadRequest();
+                response.code = 1001;
+                response.message = "Input is null";
+                response.data = null;
             }
-            if(role.Name == "")
+            else if(role.Name == "" || role.Name == null)
             {
-                return BadRequest("Role name must be required!");
-            }
-
-            Role tmp = mContext.Role.Where(item => item.Name == role.Name).SingleOrDefault();
-            if (tmp != null)
-            {
-                return new ObjectResult("This role has been existed!");
+                response.code = 1001;
+                response.message = "Role name must be required!";
+                response.data = null;             
             }
             else
             {
-                mContext.Role.Add(role);
-                mContext.SaveChanges();
-                return new ObjectResult("Add role successfully!");
+                Role tmp = mContext.Role.Where(item => item.Name == role.Name).SingleOrDefault();
+                if (tmp != null)
+                {
+                    response.code = 1001;
+                    response.message = "This role has been existed!";
+                    response.data = null;                  
+                }
+                else
+                {
+                    mContext.Role.Add(role);
+                    mContext.SaveChanges();
+                    response.code = 1000;
+                    response.message = "OK";
+                    response.data = null;
+                    
+                }
             }
+
+            return new ObjectResult(response);
         }
 
         [HttpDelete("{id}")]
@@ -84,37 +112,60 @@ namespace MyRestaurant.Controllers
             var role = mContext.Role.FirstOrDefault(t => t.Id == id);
             if (role == null)
             {
-                return new ObjectResult("Delete Error ,Role is not exist!");
+                response.code = 1001;
+                response.message = "Fail! This role is not existed";
+                response.data = null;
             }
-
-            mContext.Role.Remove(role);
-            mContext.SaveChanges();
-            return new ObjectResult("Delete role Successfully !");
+            else
+            {
+                mContext.Role.Remove(role);
+                mContext.SaveChanges();
+                response.code = 1001;
+                response.message = "OK";
+                response.data = null;
+                
+            }
+            return new ObjectResult(response);
         }
+
         [HttpPut("{id}")]
         [ActionName("update")]
-        public IActionResult Update(long id, [FromBody] Role role)
+        public IActionResult Update(int id, [FromBody] Role role)
         {
             if (role == null)
             {
-                return BadRequest();
+                response.code = 1001;
+                response.message = "Input is null";
+                response.data = null;
+                return new ObjectResult(response);
             }
-
-            if(role.Name == "")
+            if(role.Name == "" || role.Name == null)
             {
-                return BadRequest("Role name must be required");
+                response.code = 1001;
+                response.message = "Role name must be required";
+                response.data = null;
+               
             }
-
-            var tmp = mContext.Role.FirstOrDefault(item => item.Id == id);
-            if (tmp == null)
+            else
             {
-                return new ObjectResult("Role Not Found !");
+                var tmp = mContext.Role.FirstOrDefault(item => item.Id == id);
+                if (tmp == null)
+                {
+                    response.code = 1001;
+                    response.message = "Role not found";
+                    response.data = null;
+                }
+                else
+                {
+                    tmp.Name = role.Name;
+                    mContext.SaveChanges();
+                    response.code = 1000;
+                    response.message = "OK";
+                    response.data = null;
+                }
+                
             }
-
-            tmp.Name = role.Name;         
-            mContext.SaveChanges();
-
-            return new ObjectResult("Update role Successfully !");
+            return new ObjectResult(response);
         }
     }
 }

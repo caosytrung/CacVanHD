@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace MyRestaurant.Models
 {
@@ -11,8 +13,8 @@ namespace MyRestaurant.Models
         }
 
         public int Id { get; set; }
-        public string Name { get; set; }
-        public decimal Price { get; set; }
+        public string Name { get; set; }      
+        public decimal Price { get; set; }        
         public string Thumbnail { get; set; }
         public string Description { get; set; }
         public int CategoryId { get; set; }
