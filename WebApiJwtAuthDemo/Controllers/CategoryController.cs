@@ -69,6 +69,7 @@ namespace MyRestaurant.Controllers
 
         // POST api/values
         [HttpPost]
+        [ActionName("create")]
         public IActionResult Create([FromBody]Category category)
         {
             if (category == null)
@@ -101,7 +102,7 @@ namespace MyRestaurant.Controllers
                     mContext.SaveChanges();
                     response.code = 1000;
                     response.message = "OK";
-                    response.data = null;
+                    response.data = category;
                     return new ObjectResult(response);
                 }
             }

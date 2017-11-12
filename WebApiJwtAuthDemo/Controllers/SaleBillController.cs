@@ -206,31 +206,31 @@ namespace MyRestaurant.Controllers
             return new ObjectResult(response);
         }
 
-        //[HttpPut]
-        //public IActionResult UpdateDetailQuantity(int id, [FromBody] SaleBillDetail sale)
-        //{
-        //    var saleBillDetail = mContext.SaleBillDetail.FirstOrDefault(t => t.Id == id);
-        //    if(saleBillDetail == null)
-        //    {
-        //        response.code = 1001;
-        //        response.message = "Bill detail not found";
-        //        response.data = null;
-        //    }
-        //    else
-        //    {
-        //        saleBillDetail.Quantity = sale.Quantity;
-        //        mContext.SaveChanges();
-        //        var saleBill = mContext.SaleBill.FirstOrDefault(t => t.Id == saleBillDetail.SaleBillId);
-        //        var dish = mContext.Dish.FirstOrDefault(t => t.Id == saleBillDetail.DishId);
-        //        saleBill.Total = dish.Price * sale.Quantity;
-        //        mContext.SaveChanges();
-        //        response.code = 1000;
-        //        response.message = "OK";
-        //        response.data = null;
-        //    }
-            
-        //    return new ObjectResult(response);
-        //}
+        [HttpPost]
+        public IActionResult UpdateDetailQuantity([FromBody] SaleBillDetail sale)
+        {
+            var saleBillDetail = mContext.SaleBillDetail.FirstOrDefault(t => t.Id == sale.Id);
+            if (saleBillDetail == null)
+            {
+                response.code = 1001;
+                response.message = "Bill detail not found";
+                response.data = null;
+            }
+            else
+            {
+                saleBillDetail.Quantity = sale.Quantity;
+                mContext.SaveChanges();
+                var saleBill = mContext.SaleBill.FirstOrDefault(t => t.Id == saleBillDetail.SaleBillId);
+                var dish = mContext.Dish.FirstOrDefault(t => t.Id == saleBillDetail.DishId);
+                saleBill.Total = dish.Price * sale.Quantity;
+                mContext.SaveChanges();
+                response.code = 1000;
+                response.message = "OK";
+                response.data = null;
+            }
+
+            return new ObjectResult(response);
+        }
     }
 
 }
