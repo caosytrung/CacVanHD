@@ -1,0 +1,41 @@
+﻿
+<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="name" data-sort-order="desc">
+    <thead>
+        <tr>        
+            <th data-field="id" data-sortable="true">Order</th> 
+            <th data-field="name" data-sortable="true">Name</th> 
+        </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $.ajax({
+            url: 'http://localhost:8888/api/role/list',
+            type: 'GET',
+            header: { Authorization: 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ2YW50dWR1b25nMTIyMiIsImp0aSI6ImM3MjIzZDM1LWE4NjEtNGViZi1iYmM0LWI0MTQ5NTAzNzlmNSIsImlhdCI6MTUxMDg0MTM0NiwiRGlzbmV5Q2hhcmFjdGVyIjoiSUFtTWlja2V5IiwibmJmIjoxNTEwODQxMzQ1LCJleHAiOjE1MTA4NDQ5NDUsImlzcyI6IlN1cGVyQXdlc29tZVRva2VuU2VydmVyIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4ODg4LyJ9.qkQ0HDR8YQgzgVIpbCWnr6NE54jXHVLhwu3p0RtZYew'}
+            success: function (data) {
+                if (data.code == 1000) {
+                    var html = ''
+                    $.each(data.data, function (i, item) {
+                        i = i + 1;
+                        html += '<tr>' +
+                            '<td> ' + i + '</td>' +
+                            '<td> ' + item.name + '</td>' +
+                            '</tr>';
+                        
+                    });
+                    $('tbody').html(html);
+                }
+
+            },
+            error: function (xhr) {
+                console.log(xhr.message);
+
+            }
+
+        })
+    });
+</script>

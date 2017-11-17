@@ -112,7 +112,11 @@ namespace MyRestaurant
       loggerFactory.AddDebug();
 
       app.UseAuthentication();
-      app.UseMvc();
-    }
+        app.UseMvc(routes =>
+        {
+            routes.MapRoute("default", "{controller=RoleView}/{action=Index}/{id?}");
+        });
+        app.UseStaticFiles();
+     }
   }
 }
