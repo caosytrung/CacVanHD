@@ -22,6 +22,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace MyRestaurant
 {
@@ -48,9 +50,10 @@ namespace MyRestaurant
       // Add framework services.
       services.AddOptions();
 
-      // Make authentication compulsory across the board (i.e. shut
-      // down EVERYTHING unless explicitly opened up).
-      services.AddMvc(config =>
+    services.AddSingleton<IFileProvider>(
+        new PhysicalFileProvider(
+            Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));
+    services.AddMvc(config =>
       {
         var policy = new AuthorizationPolicyBuilder()
                          .RequireAuthenticatedUser()

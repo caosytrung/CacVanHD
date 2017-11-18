@@ -1,11 +1,11 @@
 ﻿<div class="panel panel-default">
-    <div class="panel-heading"><a href="http://localhost:8888/@ViewBag.Controller" class="btn btn-primary">Back</a></div>
+    <div class="panel-heading"><a href="http://localhost:8888/categoryview" class="btn btn-primary">Back</a></div>
     <div class="panel-body">
         <div class="col-md-6">
             <form role="form">
                 <div class="form-group">
-                    <label>Role name</label>
-                    <input class="form-control" placeholder="Role name" id="name">
+                    <label>Category name</label>
+                    <input class="form-control" placeholder="Category name" id="name">
                     <span id="error" style="color: red"></span>
                 </div>             
                 <button type="button" class="btn btn-primary" id="submit">Create</button>
@@ -51,7 +51,7 @@
             }  
             var name = $('#name').val();
             $.ajax({
-                url: 'http://localhost:8888/api/role/create',
+                url: 'http://localhost:8888/api/category/create',
                 type: 'POST',
                 headers: { "Authorization": header_string },
                 data: {Name: name},

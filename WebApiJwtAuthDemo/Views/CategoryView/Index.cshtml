@@ -1,0 +1,96 @@
+﻿<div class="panel panel-default">
+    <div class="panel-heading"><a href="http://localhost:8888/category/create" class="btn btn-primary">Create</a></div>
+    <div class="panel-body">
+        <table data-toggle="table" data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="name" data-sort-order="desc">
+            <thead>
+                <tr>
+                    <th data-field="id" data-sortable="true">Order</th>
+                    <th data-field="name" data-sortable="true">Name</th>
+                    <th data-field="action" data-sortable="true">Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<script type="text/javascript">
+    function compute_time(time1, time2) {
+        return (time1 - time2) / 1000;
+    }
+    $(document).ready(function () {
+        var token = localStorage.getItem("token");
+        var expired = localStorage.getItem("expired");
+        var login_time = localStorage.getItem("login_time");
+        var d = $.now();
+        var diff = compute_time(d, login_time);
+        if (diff > 3600) {
+            token = '';
+
+        }
+        if (token == '') {
+            window.location = 'http://localhost:8888/login'
+
+        }
+     
+        var header_string = 'Bearer ' + token;
+        $.ajax({
+            url: 'http://localhost:8888/api/category/list',
+            type: 'GET',
+            headers: { "Authorization": header_string },
+            success: function (data) {
+                if (data.code == 1000) {
+                    var html = ''
+                    $.each(data.data, function (i, item) {
+                        i = i + 1;
+                        html += '<tr>' +
+                            '<td> ' + i + '</td>' +
+                            '<td> ' + item.name + '</td>' +
+                            '<td> <a href="http://localhost:8888/categoryview/edit/' + item.id + '" class="btn btn-primary">Edit</a>' +
+                            ' <button type="button" class="delete btn btn-danger" id="delete" data-id="' + item.id + '">Delete</button></td>' +
+                            '</tr>';
+
+                    });
+                    $('tbody').html(html);
+
+                    $('.delete').on('click', function () {
+                        if (!confirm('Are you sure?')) {
+                            return;
+
+                        }
+                        var id = $(this).data('id');
+                        var del = $(this);
+                        console.log(id);
+                        $.ajax({
+                            url: 'http://localhost:8888/api/category/delete/'+id,
+                            type: 'DELETE',
+                            headers: { "Authorization": header_string },
+                            success: function (data) {
+                                if (data.code == 1000) {
+                                    $('#success').html('Successfully');
+                                    $('#success').show();
+                                    del.parent().parent().remove();
+                                } else {
+                                    $('#danger').html(data.message);
+                                    $('#danger').show();
+
+                                }
+
+                            },
+                            error: function (xhr) {
+                                console.log(xhr.message);
+
+                            }
+                        })
+
+                    })
+                }
+
+            },
+            error: function (xhr) {
+                console.log(xhr.message);
+
+            }
+        });
+        
+    });
+</script>

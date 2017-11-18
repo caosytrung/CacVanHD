@@ -42,7 +42,8 @@ namespace MyRestaurant.Controllers
             return new ObjectResult(response);
         }
 
-        [HttpGet("{id}")]     
+        [HttpGet("{id}")]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult Get(long id)
         {
             var role = mContext.Role.FirstOrDefault(t => t.Id == id);
@@ -70,6 +71,7 @@ namespace MyRestaurant.Controllers
 
         [HttpPost]
         [ActionName("create")]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult Create([FromForm] Role role)
         {
             if (role == null)
@@ -109,6 +111,7 @@ namespace MyRestaurant.Controllers
 
         [HttpDelete("{id}")]
         [ActionName("delete")]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult Delete(int id)
         {
             var role = mContext.Role.FirstOrDefault(t => t.Id == id);
@@ -132,6 +135,7 @@ namespace MyRestaurant.Controllers
 
         [HttpPut("{id}")]
         [ActionName("update")]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult Update(int id, [FromForm] Role role)
         {
             if (role == null)

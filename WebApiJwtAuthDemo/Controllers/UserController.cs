@@ -42,12 +42,10 @@ namespace MyRestuarant.Controllers
             response = new Response();
         }
         [HttpPost]      
-        public IActionResult Register([FromBody] Users user)
+        public IActionResult Register([FromForm] Users user)
         {
             if (!Utils.IsValidEmail(user.Email))
             {
-
-
                 response.code = 1001;
                 response.message = "Invalid Email";
                 response.data = null;
@@ -83,8 +81,8 @@ namespace MyRestuarant.Controllers
             
             string password = Convert.ToBase64String(Encoding.UTF8.GetBytes(user.Password));
             user.Password = password;
-            user.Avatar = "noimg.jpg";          
-          
+            user.Avatar = "noimg.jpg";
+            user.RoleId = 3;
             mContext.Users.Add(user);         
             mContext.SaveChanges();
             try

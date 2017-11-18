@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MyRestaurant.Models;
 using MyRestaurant.Options;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -23,6 +24,7 @@ namespace MyRestaurant.Controllers
         }
      
         [HttpGet]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult List()
         {
             Category[] categories = mContext.Category.ToArray();
@@ -41,8 +43,8 @@ namespace MyRestaurant.Controllers
             return new ObjectResult(response);
         }
 
-        // GET api/values/5
         [HttpGet("{id}")]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult Get(int id)
         {
             var category = mContext.Category.FirstOrDefault(t => t.Id == id);
@@ -70,7 +72,8 @@ namespace MyRestaurant.Controllers
         // POST api/values
         [HttpPost]
         [ActionName("create")]
-        public IActionResult Create([FromBody]Category category)
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult Create([FromForm]Category category)
         {
             if (category == null)
             {
@@ -112,6 +115,7 @@ namespace MyRestaurant.Controllers
 
         [HttpDelete("{id}")]
         [ActionName("delete")]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult Delete(int id)
         {
             var category = mContext.Category.FirstOrDefault(t => t.Id == id);
@@ -133,7 +137,8 @@ namespace MyRestaurant.Controllers
 
         [HttpPut("{id}")]
         [ActionName("update")]
-        public IActionResult Update(long id, [FromBody] Category category)
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult Update(long id, [FromForm] Category category)
         {
             if (category == null)
             {

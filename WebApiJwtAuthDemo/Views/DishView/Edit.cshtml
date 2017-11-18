@@ -1,0 +1,154 @@
+﻿<div class="panel panel-default">
+    <div class="panel-heading"><a href="http://localhost:8888/dishview" class="btn btn-primary">Back</a></div>
+    <div class="panel-body">
+        <div class="col-md-6">
+            <form role="form" id="frm">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" class="form-control" id="name" placeholder="Name" name="Name">
+                    <span id="name-error" style="color: red"></span>
+                </div>
+                <div class="form-group">
+                    <label>Price</label>
+                    <input type="number" class="form-control" id="price" placeholder="Price" name="Price">
+                    <span id="price-error" style="color: red"></span>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea class="form-control" id="desc" name="Description"></textarea>
+
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select class="form-control" id="category" name="CategoryId">
+                        
+                    </select>
+                </div>
+                <button type="button" class="btn btn-primary" id="submit">Update</button>
+                <button type="reset" class="btn btn-default">Reset</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function compute_time(time1, time2) {
+        return (time1 - time2) / 1000;
+    }
+    function validate() {
+        var name = $('#name').val();
+        var price = $('#price').val();
+        var category_id = $('#category').val();
+        if (name == '') {
+            var error = 'Please input name';
+            $('#name-error').html(error);
+
+            return false;
+        }
+        if (price == '') {
+            var error = 'Please input price';
+            $('#price-error').html(error);
+            return false;
+        }
+
+        if (price <= 0) {
+            var error = 'Price invalid';
+            $('#price-error').html(error);
+            return false;
+        }
+
+
+        return true;
+    }
+    $(document).ready(function () {
+        var token = localStorage.getItem("token");
+        var expired = localStorage.getItem("expired");
+        var login_time = localStorage.getItem("login_time");
+        var d = $.now();
+        var diff = compute_time(d, login_time);
+        if (diff > 3600) {
+            token = '';
+
+        }
+        if (token == '') {
+            window.location = 'http://localhost:8888/login'
+
+        }
+        var header_string = 'Bearer ' + token;
+        var url = $(location).attr("href");
+        var id = url.substr(url.lastIndexOf('/') + 1);
+      
+       
+        $.ajax({
+            url: 'http://localhost:8888/api/category/list',
+            type: 'GET',
+            headers: { "Authorization": header_string },
+            success: function (data) {
+                if (data.code == 1000) {
+                    var html = ''                    
+                    $.each(data.data, function (i, item) {                        
+                        html += ' <option value="' + item.id + '">' + item.name + '</option>';
+
+                    });
+                    $('#category').html(html);
+
+                    $.ajax({
+                        url: 'http://localhost:8888/api/dish/get/' + id,
+                        type: 'GET',
+                        headers: { "Authorization": header_string },
+                        success: function (data) {
+                            if (data.code == 1000) {
+                                $('#name').val(data.data.name);
+                                $('#price').val(data.data.price);
+                                $('#desc').val(data.data.description);
+                                $('#category').val(data.data.categoryId);
+                            }
+                        },
+                        error: function (xhr) {
+                            console.log(xhr.message);
+
+                        }
+
+                    });
+                }
+
+            },
+            error: function (xhr) {
+                console.log(xhr.message);
+
+            }
+        });
+       
+
+
+        $('#submit').on('click', function () {
+            if (!validate()) {
+                return;
+
+            }
+            var name = $('#name').val();
+            $.ajax({
+                url: 'http://localhost:8888/api/dish/update/'+id,
+                type: 'PUT',             
+                headers: { "Authorization": header_string },
+                data: $('#frm').serialize(),
+                success: function (data) {
+                    if (data.code == 1000) {                                           
+                        $('#success').html('Successfully');
+                        $('#success').show();
+                        setTimeout(function () { window.location = "http://localhost:8888/dishview"; }, 1000);
+
+                    } else {
+                        $('#danger').html(data.message);
+                        $('#danger').show();
+
+                    }
+
+                }
+            })
+    });
+
+
+
+    });
+</script>

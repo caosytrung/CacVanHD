@@ -2,32 +2,43 @@
     Layout = "~/Views/Shared/_Login.cshtml";
 }
 
-
 <form role="form">
     <fieldset>
         <div class="form-group">
+            <input class="form-control" placeholder="Email" name="email" type="email" autofocus="" id="email">
+            <span id="email-error" style="color: red"></span>
+        </div>
+        <div class="form-group">
             <input class="form-control" placeholder="Username" name="username" type="text" autofocus="" id="username">
+            <span id="username-error" style="color: red"></span>
         </div>
         <div class="form-group">
             <input class="form-control" placeholder="Password" name="password" type="password" id="password">
+            <span id="password-error" style="color: red"></span>
         </div>
-        <div class="checkbox">
-            <label>
-                <input name="remember" type="checkbox" value="Remember Me">Remember Me
-            </label>
+        <div class="form-group">
+            <input class="form-control" placeholder="Confrim password"  type="password" id="c_password">
+            <span id="c_password-error" style="color: red"></span>
         </div>
-        <a href="javascript:void(0)" id="login" class="btn btn-primary">Login</a>
-        <a href="http://localhost:8888/register" style="float: right; margin: 1%">Register here</a>
+       
+        <a href="javascript:void(0)" id="login" class="btn btn-primary">Register</a>
     </fieldset>
 </form>
 
 <script type="text/javascript">
-
-    function validate() {        
+    function validate() {
+        var email = $('#email').val();
         var username = $('#username').val();
-        var password = $('#password').val();     
+        var password = $('#password').val();
+        var c_password = $('#c_password').val();
 
-        var error = '';      
+        var error = '';
+        if (email == '') {
+            error = "Please input email";
+            $('#email-error').html(error);
+            return false;
+
+        }
 
         if (username == '') {
             error = "Please input username";
@@ -39,8 +50,20 @@
             error = "Please input password";
             $('#password-error').html(error);
             return false;
+
         }
-      
+        if (c_password == '') {
+            error = "Please confirm password";
+            $('#c_password-error').html(error);
+            return false;
+
+        }
+        if (c_password != password) {
+            error = "Password not match";
+            $('#c_password-error').html(error);
+            return false;
+
+        }
         return true;
 
     }
@@ -52,17 +75,18 @@
         $('wait').show();
         var username = $('#username').val();
         var password = $('#password').val();
+        var email = $('#email').val();
         $.ajax({
-            url: 'http://localhost:8888/api/user/login',
+            url: 'http://localhost:8888/api/user/register',
             type: 'POST',
-            data: { Username: username, Password: password },
+            data: { Email: email, Username: username, Password: password },
             success: function (data) {
                 if (data.code == 1000) {
                     localStorage.setItem("token", data.data.access_token);
                     localStorage.setItem("expried", data.data.expires_in);
                     localStorage.setItem("login_time", $.now());
 
-                    window.location = "http://localhost:8888/roleview"
+                    window.location = "http://localhost:8888/login"
                 } else {
                     $('#error').html(data.message);
                     $('#error').show();

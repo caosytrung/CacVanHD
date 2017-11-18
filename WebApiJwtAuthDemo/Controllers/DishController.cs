@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MyRestaurant.Models;
 using MyRestaurant.Options;
+using System;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace MyRestaurant.Controllers
 {
@@ -22,9 +24,19 @@ namespace MyRestaurant.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult List()
         {
-            Dish[] dishes = mContext.Dish.ToArray();          
+            Dish[] dishes = mContext.Dish.ToArray();
+            for (int i = 0; i < dishes.Length; i++)
+            {
+                var category_id = dishes[i].CategoryId;
+                var category = mContext.Category.FirstOrDefault(c => c.Id == category_id);
+                if (category != null)
+                {
+                    dishes[i].Category = category;
+                }
+            }
             response.code = 1000;
             response.message = "OK";
             response.data = dishes;
@@ -32,6 +44,7 @@ namespace MyRestaurant.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult Get(long id)
         {
             var dish = mContext.Dish.FirstOrDefault(t => t.Id == id);
@@ -43,7 +56,7 @@ namespace MyRestaurant.Controllers
 
             }
             else
-            {             
+            {
                 response.code = 1000;
                 response.message = "OK";
                 response.data = dish;
@@ -54,7 +67,8 @@ namespace MyRestaurant.Controllers
 
         [HttpPost]
         [ActionName("create")]
-        public IActionResult Create([FromBody] Dish dish)
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult Create([FromForm] Dish dish)
         {
 
             if (dish == null)
@@ -69,13 +83,14 @@ namespace MyRestaurant.Controllers
                 response.message = "Dish name must be required!";
                 response.data = null;
             }
-            else if(dish.Price <= 0)
+            else if (dish.Price <= 0)
             {
                 response.code = 1001;
                 response.message = "Price name must be required and must be positive number!";
                 response.data = null;
             }
-            else if(dish.CategoryId <= 0) {
+            else if (dish.CategoryId <= 0)
+            {
                 response.code = 1001;
                 response.message = "CategoryId must be required and must be positive number!";
                 response.data = null;
@@ -99,7 +114,8 @@ namespace MyRestaurant.Controllers
                         response.data = null;
                     }
                     else
-                    {                      
+                    {
+                        dish.Thumbnail = dish.Thumbnail != null && dish.Thumbnail != "" ? dish.Thumbnail : "noimg.jpg";
                         mContext.Dish.Add(dish);
                         mContext.SaveChanges();
                         response.code = 1000;
@@ -115,6 +131,7 @@ namespace MyRestaurant.Controllers
 
         [HttpDelete("{id}")]
         [ActionName("delete")]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult Delete(int id)
         {
             var dish = mContext.Dish.FirstOrDefault(t => t.Id == id);
@@ -138,7 +155,8 @@ namespace MyRestaurant.Controllers
 
         [HttpPut("{id}")]
         [ActionName("update")]
-        public IActionResult Update(int id, [FromBody] Dish dish)
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult Update(int id, [FromForm] Dish dish)
         {
             if (dish == null)
             {
@@ -179,7 +197,7 @@ namespace MyRestaurant.Controllers
                     tmp.Price = dish.Price;
                     tmp.Thumbnail = dish.Thumbnail != null && dish.Thumbnail != "" ? dish.Thumbnail : "noimg.jpg";
                     tmp.Description = dish.Description != null ? dish.Description : "";
-                    tmp.CategoryId = dish.CategoryId;                 
+                    tmp.CategoryId = dish.CategoryId;
                     mContext.SaveChanges();
                     response.code = 1000;
                     response.message = "OK";

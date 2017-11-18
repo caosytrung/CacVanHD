@@ -1,5 +1,5 @@
 ﻿<div class="panel panel-default">
-    <div class="panel-heading"><a href="http://localhost:8888/@ViewBag.Controller" class="btn btn-primary">Back</a></div>
+    <div class="panel-heading"><a href="http://localhost:8888/roleview" class="btn btn-primary">Back</a></div>
     <div class="panel-body">
         <div class="col-md-6">
             <form role="form">
@@ -63,7 +63,7 @@
         })
 
         $('#submit').on('click', function () {
-            if (!validate) {
+            if (!validate()) {
                 return;
 
             }
