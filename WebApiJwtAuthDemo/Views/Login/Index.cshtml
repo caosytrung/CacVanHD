@@ -1,0 +1,46 @@
+﻿@{
+    Layout = "~/Views/Shared/_Login.cshtml";
+}
+
+<form role="form">
+    <fieldset>
+        <div class="form-group">
+            <input class="form-control" placeholder="Username" name="username" type="text" autofocus="" id="username">
+        </div>
+        <div class="form-group">
+            <input class="form-control" placeholder="Password" name="password" type="password" id="password">
+        </div>
+        <div class="checkbox">
+            <label>
+                <input name="remember" type="checkbox" value="Remember Me">Remember Me
+            </label>
+        </div>
+        <a href="javascript:void(0)" id="login" class="btn btn-primary">Login</a>
+    </fieldset>
+</form>
+
+<script type="text/javascript">
+    $('#login').on('click', function () {
+        var username = $('#username').val();
+        var password = $('#password').val();
+        $.ajax({
+            url: 'http://localhost:8888/api/user/login',
+            type: 'POST',
+            data: { Username: username, Password: password },
+            success: function (data) {
+                if (data.code == 1000) {
+                    localStorage.setItem("token", data.data.access_token);
+                    localStorage.setItem("expried", data.data.expires_in);
+                    localStorage.setItem("login_time", $.now());
+
+                    window.location = "http://localhost:8888/roleview"
+                }
+
+            },
+            error: function (xhr) {
+                console.log(xhr.message);
+            }
+
+        })
+    });
+</script>

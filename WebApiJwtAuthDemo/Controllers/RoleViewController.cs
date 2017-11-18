@@ -11,6 +11,19 @@ namespace MyRestaurant.Controllers
         public IActionResult Index()
         {
             ViewBag.Title = "Role management";
+            ViewBag.Controller = "roleview";
+            return View();
+        }
+
+        public IActionResult Create()
+        {
+            ViewBag.Title = "Role management";       
+            return View();
+        }
+
+        public IActionResult Edit()
+        {
+            ViewBag.Title = "Role management";
             return View();
         }
     }

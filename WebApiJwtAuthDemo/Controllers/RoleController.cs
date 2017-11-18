@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MyRestaurant.Models;
 using MyRestaurant.Options;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MyRestaurant.Controllers
 {
@@ -21,7 +22,8 @@ namespace MyRestaurant.Controllers
             response = new Response();
         }
 
-        [HttpGet]     
+        [HttpGet]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult List()
         {         
             Role[] roles = mContext.Role.ToArray();
@@ -68,7 +70,7 @@ namespace MyRestaurant.Controllers
 
         [HttpPost]
         [ActionName("create")]
-        public IActionResult Create([FromBody] Role role)
+        public IActionResult Create([FromForm] Role role)
         {
             if (role == null)
             {
@@ -120,7 +122,7 @@ namespace MyRestaurant.Controllers
             {
                 mContext.Role.Remove(role);
                 mContext.SaveChanges();
-                response.code = 1001;
+                response.code = 1000;
                 response.message = "OK";
                 response.data = null;
                 
@@ -130,7 +132,7 @@ namespace MyRestaurant.Controllers
 
         [HttpPut("{id}")]
         [ActionName("update")]
-        public IActionResult Update(int id, [FromBody] Role role)
+        public IActionResult Update(int id, [FromForm] Role role)
         {
             if (role == null)
             {

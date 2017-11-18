@@ -94,23 +94,22 @@
                 <h1 class="page-header">@ViewBag.Title</h1>
             </div>
         </div><!--/.row-->
-
-
+        <div class="alert alert-success" id="success" style="display: none"></div>
+        <div class="alert alert-danger" id="danger" style="display: none"></div>
         <div class="row">
-            <div class="col-lg-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading">Advanced Table</div>
-                    <div class="panel-body"> 
-                        
-                            @RenderBody()                      
-                    </div>
-                </div>
+            <div class="col-lg-12">                                       
+               @RenderBody()                                      
             </div>
         </div>
         
     </div><!--/.row-->
    
-    <script src="~/js/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            setTimeout(function () { $('.alert').hide() }, 5000);
+
+        });
+    </script>
     <script src="~/js/bootstrap.min.js"></script>
     <script src="~/js/chart.min.js"></script>
     <script src="~/js/chart-data.js"></script>
