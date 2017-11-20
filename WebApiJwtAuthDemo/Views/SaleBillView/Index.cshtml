@@ -54,9 +54,9 @@
                             '<td> ' + item.customerName + '</td>' +
                             '<td> ' + item.employee.name + '</td>' +                        
                             '<td> ' + item.total + '</td>' +
-                            '<td> <a href="http://localhost:8888/salebillview/edit/' + item.id + '" class="btn btn-primary">Edit</a>' +
+                            '<td>' +
                             '  <a href="http://localhost:8888/salebillview/detail/' + item.id + '" class="btn btn-primary">Detail</a>'+
-                            ' <button type="button" class="delete btn btn-danger" id="delete" data-id="' + item.id + '">Delete</button></td>' +
+                            '  <button type="button" class="delete btn btn-danger" id="delete" data-id="' + item.id + '">Delete</button></td>' +
                             '</tr>';
 
                     });
@@ -71,7 +71,7 @@
                         var del = $(this);
                         console.log(id);
                         $.ajax({
-                            url: 'http://localhost:8888/api/table/delete/' + id,
+                            url: 'http://localhost:8888/api/salebill/delete/' + id,
                             type: 'DELETE',
                             headers: { "Authorization": header_string },
                             success: function (data) {

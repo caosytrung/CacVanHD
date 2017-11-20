@@ -109,7 +109,7 @@ namespace MyRestuarant.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ActionName("login")]
-        public async Task<IActionResult> Get([FromForm] ApplicationUser applicationUser)
+        public async Task<IActionResult> Login([FromForm] ApplicationUser applicationUser)
         {
             Response res = new Response();
             if(applicationUser.Username == "" )
@@ -161,6 +161,10 @@ namespace MyRestuarant.Controllers
             return new ObjectResult(res);
         }
 
+
+        [HttpGet]
+        [AllowAnonymous]
+        [ActionName("list")]
         public IActionResult List()
         {
             Users[] users = mContext.Users.ToArray();

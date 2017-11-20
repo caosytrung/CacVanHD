@@ -49,7 +49,7 @@
             return;
 
         }
-        $('wait').show();
+        $('#wait').show();
         var username = $('#username').val();
         var password = $('#password').val();
         $.ajax({
@@ -62,7 +62,7 @@
                     localStorage.setItem("expried", data.data.expires_in);
                     localStorage.setItem("login_time", $.now());
 
-                    window.location = "http://localhost:8888/roleview"
+                    window.location = "http://localhost:8888/home"
                 } else {
                     $('#error').html(data.message);
                     $('#error').show();

@@ -8,12 +8,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MyRestaurant.Controllers
 {
-    public class LoginController : Controller
+    public class UserViewController : Controller
     {
         // GET: /<controller>/
         public IActionResult Index()
         {
-            ViewBag.Title = "Login";
+            ViewBag.Title = "User management";
+            ViewBag.Controller = "userview";
             return View();
         }
     }

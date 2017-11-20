@@ -19,17 +19,7 @@ namespace MyRestaurant.Controllers
             response = new Response();
         }
 
-        [HttpGet]
-        [Authorize(Policy = "DisneyUser")]
-        public IActionResult List()
-        {
-            Rtable[] dishes = mContext.Rtable.ToArray();
-            
-            response.code = 1000;
-            response.message = "OK";
-            response.data = dishes;
-            return new ObjectResult(response);
-        }
+       
 
         [HttpGet("{id}")]
         [Authorize(Policy = "DisneyUser")]
@@ -110,12 +100,8 @@ namespace MyRestaurant.Controllers
         }
         [HttpPut("{id}")]
         [ActionName("update")]
-<<<<<<< HEAD
-        public IActionResult Update(long id, [FromBody] Rtable table)
-=======
         [Authorize(Policy = "DisneyUser")]
         public IActionResult Update(long id, [FromForm] Rtable table)
->>>>>>> 445132923790bddf6641eb1b93f133bd6d0e51cf
         {
             if (table == null)
             {
@@ -125,13 +111,8 @@ namespace MyRestaurant.Controllers
                 return new ObjectResult(response);
             }
 
-<<<<<<< HEAD
-            var tmp = mContext.Rtable.FirstOrDefault(item => item.Id == table.Id);
-            if (tmp == null)
-=======
             var tmp = mContext.Rtable.FirstOrDefault(item => item.Id == id);
             if(tmp == null)
->>>>>>> 445132923790bddf6641eb1b93f133bd6d0e51cf
             {
 
                 response.code = 1001;
@@ -161,23 +142,25 @@ namespace MyRestaurant.Controllers
         }
 
         [HttpGet]
-        [ActionName("listtable")]
+        [ActionName("list")]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult List()
         {
-            System.Diagnostics.Debug.Write("roiiii");
-            var employees = mContext.Rtable.ToList();
-            if (employees.Count() == 0)
+          
+            var tables = mContext.Rtable.ToList();
+            if (tables.Count() == 0)
             {
                 response.setDatas(1001, "Table  is empty set !", null);
                 return new ObjectResult(response);
             }
-            response.setDatas(1000, "Query successfully !!", employees);
+            response.setDatas(1000, "Query successfully !!", tables);
 
             return new ObjectResult(response);
         }
 
         [HttpGet]
         [ActionName("tablebooked")]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult ListTableBooked()
         {
             System.Diagnostics.Debug.Write("roiiii");
@@ -193,7 +176,8 @@ namespace MyRestaurant.Controllers
         }
         [HttpPut("{id}")]
         [ActionName("booktable")]
-        public IActionResult BookTable(long? id)
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult BookTable(long? id, [FromForm] BookTable bookTable)
         {
             if (!id.HasValue)
             {
@@ -213,15 +197,65 @@ namespace MyRestaurant.Controllers
                 response.setDatas(1001, "book table failed , this table is booked yet !", null);
                 return new ObjectResult(response);
             }
-            response.setDatas(1000, "Table is booked successfully !", tmp);
+
             tmp.Available = 0;
+            
+            if(bookTable.CustomerName == null || bookTable.CustomerName == "")
+            {
+                response.setDatas(1000, "Customer name must be required!", tmp);
+            }
+
+            if (bookTable.CustomerPhone == null || bookTable.CustomerPhone == "")
+            {
+                response.setDatas(1000, "Customer phone must be required!", tmp);
+            }
+
+            if(bookTable.BookAt == null)
+            {
+                response.setDatas(1000, "Book time must be required!", tmp);
+            }
+            mContext.BookTable.Add(bookTable);
             mContext.Rtable.Update(tmp);
             mContext.SaveChanges();
-
+            response.setDatas(1000, "Table is booked successfully !", tmp);
             return new ObjectResult(response);
 
 
         }
+        [HttpPut("{id}")]
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult Return(long? id)
+        {
+            var tmp = mContext.Rtable.FirstOrDefault(item => item.Id == id);
+            if (tmp == null)
+            {
+                response.setDatas(1001, "Table not found !", null);
+                return new ObjectResult(response);
+            }
+           
+            response.setDatas(1000, "Table is booked successfully !", tmp);
+            tmp.Available = 1;
+            mContext.Rtable.Update(tmp);
+            mContext.SaveChanges();
+
+            return new ObjectResult(response);
+        }
+
+        [HttpGet("{id}")]
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult GetCustomer(long id)
+        {
+            var tmp = mContext.BookTable.FirstOrDefault(item => item.TableId == id);
+            if (tmp == null)
+            {
+                response.setDatas(1001, "Table not found !", null);
+                return new ObjectResult(response);
+            }
+
+            response.setDatas(1000, "Table is booked successfully !", tmp);       
+            return new ObjectResult(response);
+        }
+
 
     }
 }

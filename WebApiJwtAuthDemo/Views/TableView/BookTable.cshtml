@@ -7,18 +7,22 @@
                     <label>Customer Name</label>
                     <input class="form-control" placeholder="Customer Name" id="name">
                     <span id="error" style="color: red"></span>
-                </div>      
+                </div>
                 <div class="form-group">
-                    <label>Created By</label>
-                    <select id="employee" class="form-control">
-                        
-                    </select>
-                </div>      
-              
-                <button type="button" class="btn btn-primary" id="submit">Create</button>
-                <button type="reset" class="btn btn-default">Reset</button>               
+                    <label>Customer Phone</label>
+                    <input class="form-control" placeholder="Customer Phone" id="phone">
+                    <span id="phone-error" style="color: red"></span>
+                </div>
+                <div class="form-group">
+                    <label>Book Time</label>
+                    <input class="form-control" type="date" placeholder="Booktime" id="booktime">
+                    <span id="booktime-error" style="color: red"></span>
+                </div>
+
+                <button type="button" class="btn btn-primary" id="submit">Book</button>
+                <button type="reset" class="btn btn-default">Reset</button>
             </form>
-        </div>       
+        </div>
     </div>
 </div>
 
@@ -28,9 +32,25 @@
     }
     function validate() {
         var name = $('#name').val();
+        var phone = $('#phone').val();
+        var book = $('#booktime').val();
+
+        var error = '';
         if (name == '') {
-            var error = 'Please input name';
+            error = 'Please input name';
             $('#error').html(error);
+            return false;
+        }
+
+        if (phone == '') {
+            error = 'Please input phone number';
+            $('#phone-error').html(error);
+            return false;
+        }
+
+        if (book == '') {
+            error = 'Please input book time';
+            $('#phone-error').html(error);
             return false;
         }
         return true;
@@ -50,42 +70,26 @@
 
         }
 
-        var header_string = 'Bearer ' + token;
-
-        $.ajax({
-            url: 'http://localhost:8888/api/employee/list',
-            type: 'GET',
-            headers: { "Authorization": header_string },           
-            success: function (data) {
-                if (data.code == 1000) {
-                    var html = '';
-                    $.each(data.data, function (i, item) {
-                        html += '<option value="' + item.id + '">' + item.name + '</option>';
-
-                    })
-                    $('#employee').html(html);
-                } 
-            }
-        })
-        
+        var header_string = 'Bearer ' + token;       
+        var url = $(location).attr("href");
+        var id = url.substr(url.lastIndexOf('/') + 1);
         $('#submit').on('click', function () {
             if (!validate()) {
                 return;
 
-            }  
+            }
             var customerName = $('#name').val();
-            var employeeId = $('#employee').val();
+            var customerPhone = $('#phone').val();
+            var bookAt = $('#booktime').val();
             $.ajax({
-                url: 'http://localhost:8888/api/salebill/create',
-                type: 'POST',
+                url: 'http://localhost:8888/api/table/booktable/'+id,
+                type: 'PUT',
                 headers: { "Authorization": header_string },
-                data: { CustomerName: customerName, EmployeeId: employeeId },
+                data: { CustomerName: customerName, CustomerPhone: customerPhone, BookAt: bookAt, TableId: id },
                 success: function (data) {
                     if (data.code == 1000) {
-                        $('#success').html('Successfully');
-                        $('#success').show();
-                        $('#name').val('');
-                        $('#employee').val('');
+                        alert('Successfully');
+                        window.location = "http://localhost:8888/tableview";
 
                     } else {
                         $('#danger').html(data.message);
@@ -96,7 +100,7 @@
                 }
             })
     });
-   
+
 
 
     });

@@ -21,12 +21,20 @@ namespace MyRestaurant.Controllers
         public IActionResult Create()
         {
             ViewBag.Title = "Table management";
+            ViewBag.Controller = "tableview";
             return View();
         }
 
         public IActionResult Edit()
         {
             ViewBag.Title = "Table management";
+            ViewBag.Controller = "tableview";
+            return View();
+        }
+        public IActionResult BookTable()
+        {
+            ViewBag.Title = "Table management";
+            ViewBag.Controller = "tableview";
             return View();
         }
     }

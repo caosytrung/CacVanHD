@@ -80,7 +80,10 @@
                     if (data.code == 1000) {
                         $('#success').html('Successfully');
                         $('#success').show();
+                        setTimeout(function () {
+                            window.location = "http://localhost:8888/categoryview";
 
+                        }, 1000);
                     } else {
                         $('#danger').html(data.message);
                         $('#danger').show();
