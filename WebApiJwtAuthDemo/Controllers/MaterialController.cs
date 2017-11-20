@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MyRestaurant.Models;
 using MyRestaurant.Options;
 using System;
@@ -20,8 +21,9 @@ namespace MyRestaurant.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "DisneyUser")]
         [ActionName("materialinstock/create")]
-        public IActionResult CreateMaterialInStock([FromBody] MaterialInStock material)
+        public IActionResult CreateMaterialInStock([FromForm] MaterialInStock material)
         {
             if (material == null)
             {
@@ -63,6 +65,7 @@ namespace MyRestaurant.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = "DisneyUser")]
         [ActionName("materialinstock/delete")]
         public IActionResult Delete(int id)
         {
@@ -85,9 +88,67 @@ namespace MyRestaurant.Controllers
 
 
         }
-        [HttpPut]
+
+        [HttpPut("{id}")]
         [ActionName("materialinstock/update")]
-        public IActionResult UpdateMaterialInStock([FromBody] MaterialInStock material)
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult Update(long id, [FromForm] MaterialInStock material)
+        {
+            if (material == null)
+            {
+                response.code = 1001;
+                response.message = "Invalid Parameter";
+                response.data = null;
+                return new ObjectResult(response);
+            }
+
+
+
+            var tmp = mContext.MaterialInStock.FirstOrDefault(item => item.Id == id);
+            var unitOM = mContext.UnitOfMeasure.FirstOrDefault(item => item.Id == material.UnitOfMeasureId);
+            if (tmp == null)
+            {
+                response.code = 1001;
+                response.message = " Material is not exist!";
+                response.data = null;
+                return new ObjectResult(response);
+            }
+            if (unitOM == null)
+            {
+                response.code = 1001;
+                response.message = " Material is not Found!";
+                response.data = null;
+                return new ObjectResult(response);
+            }
+            if (material.Name == null || material.Price == null ||
+                material.Quatity == null || material.Description == null)
+            {
+                response.code = 1001;
+                response.message = " Invalid Form!";
+                response.data = null;
+                return new ObjectResult(response);
+            }
+
+            tmp.Name = material.Name;
+            tmp.Description = material.Description;
+            tmp.UnitOfMeasureId = material.UnitOfMeasureId;
+            tmp.Quatity = material.Quatity;
+            tmp.Thumbnail = material.Thumbnail;
+
+            mContext.MaterialInStock.Update(tmp);
+            mContext.SaveChanges();
+
+
+
+            response.code = 1000;
+            response.message = "Update Material Successfully !";
+            response.data = tmp;
+            return new ObjectResult(response);
+        }
+        [HttpPut]
+        [Authorize(Policy = "DisneyUser")]
+        [ActionName("materialinstock/update")]
+        public IActionResult UpdateMaterialInStock([FromForm] MaterialInStock material)
         {
 
             if (material == null)
@@ -143,8 +204,9 @@ namespace MyRestaurant.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "DisneyUser")]
         [ActionName("materialbill/create")]
-        public IActionResult CreatematerialBill([FromBody] MaterialBill materialBill)
+        public IActionResult CreatematerialBill([FromForm] MaterialBill materialBill)
         {
             if (materialBill == null)
             {
@@ -186,8 +248,9 @@ namespace MyRestaurant.Controllers
             }
         }
         [HttpPut]
+        [Authorize(Policy = "DisneyUser")]
         [ActionName("materialbill/update")]
-        public IActionResult UpdateMaterialBill([FromBody] MaterialBill materialBill)
+        public IActionResult UpdateMaterialBill([FromForm] MaterialBill materialBill)
         {
 
             if (materialBill == null)
@@ -240,6 +303,7 @@ namespace MyRestaurant.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = "DisneyUser")]
         [ActionName("materialbill/delete")]
         public IActionResult DeleteMaterialBill(int id)
         {
@@ -265,7 +329,8 @@ namespace MyRestaurant.Controllers
 
         [HttpPost]
         [ActionName("materialbilldetail/create")]
-        public IActionResult CreateMaterialBillDetail([FromBody] MaterialBillDetail materialBillDetail)
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult CreateMaterialBillDetail([FromForm] MaterialBillDetail materialBillDetail)
         {
             if (materialBillDetail == null)
             {
@@ -325,6 +390,7 @@ namespace MyRestaurant.Controllers
 
         [HttpGet]
         [ActionName("list")]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult List()
         {
             var employees = mContext.MaterialInStock.ToList();
@@ -339,6 +405,7 @@ namespace MyRestaurant.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult Get(long id)
         {
             System.Diagnostics.Debug.Write("Davaoroiii");

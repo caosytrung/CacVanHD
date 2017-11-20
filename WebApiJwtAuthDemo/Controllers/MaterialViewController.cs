@@ -8,31 +8,27 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MyRestaurant.Controllers
 {
-    public class EmployeeViewController : Controller
+    public class MaterialViewController : Controller
     {
         // GET: /<controller>/
         public IActionResult Index()
         {
-            ViewBag.Title = "Employee management";
-            ViewBag.Controller = "employeeview";
+            ViewBag.Title = "Material management";
+            ViewBag.Controller = "materialview";
             return View();
         }
 
         public IActionResult Create()
         {
-            ViewBag.Title = "Employee management";
+            ViewBag.Title = "Material management";
             return View();
         }
 
         public IActionResult Edit()
         {
-            ViewBag.Title = "Employee management";
+            ViewBag.Title = "Material management";
             return View();
         }
-        public IActionResult Timekeep()
-        {
-            ViewBag.Title = "Employee management";
-            return View();
-        }
+      
     }
 }

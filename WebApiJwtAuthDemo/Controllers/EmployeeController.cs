@@ -23,18 +23,20 @@ namespace MyRestaurant.Controllers
         [HttpPost]
         [ActionName("create")]
         [Authorize(Policy = "DisneyUser")]
-        public IActionResult AddTable([FromForm] Employee employee)
+        public IActionResult Create([FromForm] Employee employee)
 
         {
+            System.Diagnostics.Debug.Write("vaocreateeee");
             if (employee == null)
             {
+                System.Diagnostics.Debug.Write("vaocreateeeenull");
                 return BadRequest();
             }
 
             Position tmp = mContext.Position.Where(item => item.Id == employee.PositionId).SingleOrDefault();
             if (tmp == null)
             {
-
+                System.Diagnostics.Debug.Write("vaocreateeeenulltmp");
                 response.code = 1001;
                 response.message = "Position Id is invalid";
                 response.data = null;
@@ -52,13 +54,22 @@ namespace MyRestaurant.Controllers
                 }
                 else
                 {
+
+                    System.Diagnostics.Debug.Write("vaocreateeeebefore");
+                    TimeKeeping timeKeeping = new TimeKeeping();
+                    timeKeeping.EmployeeId = employee.Id;
+                    timeKeeping.WorkHour = 0;
+                    //mContext.TimeKeeping.Add(timeKeeping);
+                    //mContext.SaveChanges();
+                    //System.Diagnostics.Debug.Write("vaocreateeeeafter");
+                    employee.TimeKeeping.Add(timeKeeping);
+
                     tmp.Employee.Add(employee);
                     mContext.SaveChanges();
                     response.code = 1000;
                     response.message = "Add Employee Successfully!";
                     response.data = employee;
                     return new ObjectResult(response);
-
                 }
 
             }
@@ -143,7 +154,7 @@ namespace MyRestaurant.Controllers
         [Authorize(Policy = "DisneyUser")]
         public IActionResult List()
         {
-            System.Diagnostics.Debug.Write("roiiii");
+          
             var employees = mContext.Employee.ToList();
             if (employees.Count() == 0)
             {
@@ -159,7 +170,7 @@ namespace MyRestaurant.Controllers
         [Authorize(Policy = "DisneyUser")]
         public IActionResult Get(long id)
         {
-            System.Diagnostics.Debug.Write("Davaoroiii");
+           
             //if (!id.HasValue) {
             //    response.setDatas(1001, "Please pass value for get data !", null);
             //    return new ObjectResult(response);
@@ -178,6 +189,7 @@ namespace MyRestaurant.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Policy = "DisneyUser")]
+        [ActionName("tkp")]
         public IActionResult TimeKeeping(long id)
         {
             var tmp = mContext.TimeKeeping.SingleOrDefault(item => item.EmployeeId == id);
@@ -192,6 +204,23 @@ namespace MyRestaurant.Controllers
             response.setDatas(1000, "Update Work hour Success !", tmp);
             return new ObjectResult(response);
 
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "DisneyUser")]
+        [ActionName("tkp")]
+        public IActionResult TimeList()
+        {
+
+            var employees = mContext.TimeKeeping.ToList();
+            if (employees.Count() == 0)
+            {
+                response.setDatas(1001, "TimeKeeping  is empty set !", null);
+                return new ObjectResult(response);
+            }
+            response.setDatas(1000, "Query successfully !!", employees);
+
+            return new ObjectResult(response);
         }
 
 

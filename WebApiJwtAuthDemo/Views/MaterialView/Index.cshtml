@@ -1,19 +1,14 @@
 ﻿<div class="panel panel-default">
-    <div class="panel-heading">
-    <a href="http://localhost:8888/employeeview/create" class="btn btn-primary">Create</a>
-        <a href="http://localhost:8888/employeeview/timekeep" class="btn btn-primary">Timekeeping</a>
-    </div>
-
+    <div class="panel-heading"><a href="http://localhost:8888/@ViewBag.Controller/create" class="btn btn-primary">Create</a></div>
     <div class="panel-body">
         <table data-toggle="table" data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="name" data-sort-order="desc">
             <thead>
                 <tr>
-                    <th data-field="id" data-sortable="true">ID</th>
-                    <th data-field="name" data-sortable="true">Name</th>
-                    <th data-field="address" data-sortable="true">Address</th>
-                    <th data-field="type" data-sortable="true">Type</th>
-                    <th data-field="type" data-sortable="true">Salary</th>
-                    <th data-field="action" data-sortable="true">Action</th>
+                    <th data-field="id" data-sortable="true">STT</th>
+                    <th data-field="name" data-sortable="true">Pride</th>
+                    <th data-field="action" data-sortable="true">Quatity</th>
+                    <th data-field="action" data-sortable="true">Name</th>
+                    <th data-field="action" data-sortable="true">Description</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -41,7 +36,7 @@
      
         var header_string = 'Bearer ' + token;
         $.ajax({
-            url: 'http://localhost:8888/api/employee/list',
+            url: 'http://localhost:8888/api/material/list',
             type: 'GET',
             headers: { "Authorization": header_string },
             success: function (data) {
@@ -51,11 +46,11 @@
                         i = i + 1;
                         html += '<tr>' +
                             '<td> ' + i + '</td>' +
+                            '<td> ' + item.price + '</td>' +
+                            '<td> ' + item.quatity + '</td>' +
                             '<td> ' + item.name + '</td>' +
-                            '<td> ' + item.address + '</td>' +
-                            '<td> ' + item.type + '</td>' +
-                            '<td> ' + item.salary + '</td>' +
-                            '<td> <a href="http://localhost:8888/employeeview/edit/' + item.id + '" class="btn btn-primary">Edit</a>' +
+                            '<td> ' + item.description + '</td>' +
+                            '<td> <a href="http://localhost:8888/materialview/edit/' + item.id + '" class="btn btn-primary">Edit</a>' +
                             ' <button type="button" class="delete btn btn-danger" id="delete" data-id="' + item.id + '">Delete</button></td>' +
                             '</tr>';
 
@@ -71,7 +66,7 @@
                         var del = $(this);
                         console.log(id);
                         $.ajax({
-                            url: 'http://localhost:8888/api/employee/delete/'+id,
+                            url: 'http://localhost:8888/api/material/delete/'+id,
                             type: 'DELETE',
                             headers: { "Authorization": header_string },
                             success: function (data) {

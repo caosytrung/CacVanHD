@@ -19,17 +19,7 @@ namespace MyRestaurant.Controllers
             response = new Response();
         }
 
-        [HttpGet]
-        [Authorize(Policy = "DisneyUser")]
-        public IActionResult List()
-        {
-            Rtable[] dishes = mContext.Rtable.ToArray();
-            
-            response.code = 1000;
-            response.message = "OK";
-            response.data = dishes;
-            return new ObjectResult(response);
-        }
+      
 
         [HttpGet("{id}")]
         [Authorize(Policy = "DisneyUser")]
@@ -110,12 +100,8 @@ namespace MyRestaurant.Controllers
         }
         [HttpPut("{id}")]
         [ActionName("update")]
-<<<<<<< HEAD
-        public IActionResult Update(long id, [FromBody] Rtable table)
-=======
         [Authorize(Policy = "DisneyUser")]
         public IActionResult Update(long id, [FromForm] Rtable table)
->>>>>>> 445132923790bddf6641eb1b93f133bd6d0e51cf
         {
             if (table == null)
             {
@@ -125,13 +111,8 @@ namespace MyRestaurant.Controllers
                 return new ObjectResult(response);
             }
 
-<<<<<<< HEAD
-            var tmp = mContext.Rtable.FirstOrDefault(item => item.Id == table.Id);
-            if (tmp == null)
-=======
             var tmp = mContext.Rtable.FirstOrDefault(item => item.Id == id);
             if(tmp == null)
->>>>>>> 445132923790bddf6641eb1b93f133bd6d0e51cf
             {
 
                 response.code = 1001;
@@ -160,11 +141,11 @@ namespace MyRestaurant.Controllers
             return new ObjectResult(response);
         }
 
-        [HttpGet]
+        [HttpGet] //trên có r mà. t làm xong phần table rồi ,có ở đâu xaotgh
         [ActionName("listtable")]
         public IActionResult List()
         {
-            System.Diagnostics.Debug.Write("roiiii");
+          
             var employees = mContext.Rtable.ToList();
             if (employees.Count() == 0)
             {
