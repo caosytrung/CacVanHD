@@ -1,0 +1,103 @@
+﻿<div class="panel panel-default">
+    <div class="panel-heading"><a href="http://localhost:8888/tableview" class="btn btn-primary">Back</a></div>
+    <div class="panel-body">
+        <div class="col-md-6">
+            <form role="form" id="frm">
+                <div class="form-group">
+                    <label>Number of seat</label>
+                    <input class="form-control" placeholder="Number of seat" id="seat" type="number" name="NumberOfSeat">
+                    <span id="seat-error" style="color: red"></span>
+                </div>        
+                <div class="form-group">
+                    <label>Location</label>
+                    <input class="form-control" placeholder="Location" id="location" type="text" name="LocationTable">
+                    <span id="location-error" style="color: red"></span>
+                </div>  
+                <div class="form-group">
+                    <label>Type</label>
+                    <input class="form-control" placeholder="Type" id="type" type="text" name="TypeTable">
+                    <span id="type-error" style="color: red"></span>
+                </div>  
+              
+                <button type="button" class="btn btn-primary" id="submit">Create</button>
+                <button type="reset" class="btn btn-default">Reset</button>               
+            </form>
+        </div>       
+    </div>
+</div>
+
+<script type="text/javascript">
+    function compute_time(time1, time2) {
+        return (time1 - time2) / 1000;
+    }
+    function validate() {
+        var seat = $('#seat').val();
+        var locaion = $('#location').val();
+        var type = $('#type').val();
+        var error = '';
+        if (seat == '') {
+            error = 'Please input number of seat';
+            $('#seat-error').html(error);
+            return false;
+        }
+        if (locaion == '') {
+            error = 'Please input location';
+            $('#location-error').html(error);
+            return false;
+        }
+        if (type == '') {
+            error = 'Please input type';
+            $('#type-error').html(error);
+            return false;
+        }
+        return true;
+    }
+    $(document).ready(function () {
+        var token = localStorage.getItem("token");
+        var expired = localStorage.getItem("expired");
+        var login_time = localStorage.getItem("login_time");
+        var d = $.now();
+        var diff = compute_time(d, login_time);
+        if (diff > 3600) {
+            token = '';
+
+        }
+        if (token == '') {
+            window.location = 'http://localhost:8888/login'
+
+        }
+
+        var header_string = 'Bearer ' + token;
+        $('#submit').on('click', function () {
+            if (!validate()) {
+                return;
+
+            }  
+          
+            $.ajax({
+                url: 'http://localhost:8888/api/table/create',
+                type: 'POST',
+                headers: { "Authorization": header_string },
+                data: $('#frm').serialize(),
+                success: function (data) {
+                    if (data.code == 1000) {
+                        $('#success').html('Successfully');
+                        $('#success').show();
+                        $('#seat').val('');
+                        $('#location').val('');
+                        $('#type').val('');
+
+                    } else {
+                        $('#danger').html(data.message);
+                        $('#danger').show();
+
+                    }
+
+                }
+            })
+    });
+   
+
+
+    });
+</script>

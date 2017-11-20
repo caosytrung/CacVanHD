@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MyRestaurant.Models;
 using MyRestaurant.Options;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MyRestaurant.Controllers
 {
@@ -22,6 +23,7 @@ namespace MyRestaurant.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult List()
         {
             SaleBill[] saleBill = mContext.SaleBill.ToArray();
@@ -29,8 +31,10 @@ namespace MyRestaurant.Controllers
             {
                 int saleBillId = saleBill[i].Id;
                 SaleBillDetail[] saleBillDetails = mContext.SaleBillDetail.Where(u => u.SaleBillId == saleBillId).ToArray();
+                Employee employee = mContext.Employee.FirstOrDefault(t => t.Id == saleBill[i].EmployeeId);
+                saleBill[i].Employee = employee;
                 foreach (SaleBillDetail saleBillDetail in saleBillDetails)
-                {
+                {                 
                     saleBill[i].SaleBillDetail.Add(saleBillDetail);
                 }
             }
@@ -41,6 +45,7 @@ namespace MyRestaurant.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult Get(long id)
         {
             var saleBill = mContext.SaleBill.FirstOrDefault(t => t.Id == id);
@@ -53,9 +58,13 @@ namespace MyRestaurant.Controllers
             }
             else
             {
+                Employee employee = mContext.Employee.FirstOrDefault(t => t.Id == saleBill.EmployeeId);
+                saleBill.Employee = employee;
                 SaleBillDetail[] saleBillDetails = mContext.SaleBillDetail.Where(u => u.SaleBillId == saleBill.Id).ToArray();
                 foreach (SaleBillDetail saleBillDetail in saleBillDetails)
                 {
+                    Dish dish = mContext.Dish.FirstOrDefault(t => t.Id == saleBillDetail.DishId);
+                    saleBillDetail.Dish = dish;
                     saleBill.SaleBillDetail.Add(saleBillDetail);
                 }
                 response.code = 1000;
@@ -68,7 +77,8 @@ namespace MyRestaurant.Controllers
 
         [HttpPost]
         [ActionName("create")]
-        public IActionResult Create([FromBody] SaleBill saleBill)
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult Create([FromForm] SaleBill saleBill)
         {
             if (saleBill == null)
             {
@@ -107,8 +117,50 @@ namespace MyRestaurant.Controllers
             return new ObjectResult(response);
         }
 
-        [HttpPost]      
-        public IActionResult CreateDetail([FromBody] SaleBillDetail saleBillDetail)
+        [HttpPut("{id}")]
+        [ActionName("update")]
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult Update(long id, [FromForm] SaleBill salebill)
+        {
+            if (salebill == null)
+            {
+                response.code = 1001;
+                response.message = "Input is null";
+                response.data = null;
+                return new ObjectResult(response);
+            }
+
+            var tmp = mContext.SaleBill.FirstOrDefault(item => item.Id == id);
+            if (tmp == null)
+            {
+
+                response.code = 1001;
+                response.message = "Bill Not Found !";
+                response.data = null;
+                return new ObjectResult(response);
+            }
+            if(salebill.CustomerName != "" && salebill.CustomerName != null)
+            {
+                tmp.CustomerName = salebill.CustomerName;
+            }
+
+            if (salebill.CreatAt != null)
+            {
+                tmp.CreatAt = salebill.CreatAt;
+            }
+
+            mContext.SaleBill.Update(tmp);
+            mContext.SaveChanges();
+
+            response.code = 1000;
+            response.message = "Update Bill Successfully !";
+            response.data = tmp;
+            return new ObjectResult(response);
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult CreateDetail([FromForm] SaleBillDetail saleBillDetail)
         {
             if (saleBillDetail == null)
             {
@@ -207,9 +259,10 @@ namespace MyRestaurant.Controllers
         }
 
         [HttpPost]
-        public IActionResult UpdateDetailQuantity([FromBody] SaleBillDetail sale)
+        public IActionResult UpdateDetailQuantity([FromForm] SaleBillDetail sale)
         {
             var saleBillDetail = mContext.SaleBillDetail.FirstOrDefault(t => t.Id == sale.Id);
+            int quantity = saleBillDetail.Quantity;
             if (saleBillDetail == null)
             {
                 response.code = 1001;
@@ -222,11 +275,11 @@ namespace MyRestaurant.Controllers
                 mContext.SaveChanges();
                 var saleBill = mContext.SaleBill.FirstOrDefault(t => t.Id == saleBillDetail.SaleBillId);
                 var dish = mContext.Dish.FirstOrDefault(t => t.Id == saleBillDetail.DishId);
-                saleBill.Total = dish.Price * sale.Quantity;
+                saleBill.Total += dish.Price * (sale.Quantity - quantity);
                 mContext.SaveChanges();
                 response.code = 1000;
                 response.message = "OK";
-                response.data = null;
+                response.data = sale.Quantity * dish.Price;
             }
 
             return new ObjectResult(response);

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MyRestaurant.Models;
 using MyRestaurant.Options;
 using System;
@@ -18,9 +19,44 @@ namespace MyRestaurant.Controllers
             response = new Response();
         }
 
+        [HttpGet]
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult List()
+        {
+            Rtable[] dishes = mContext.Rtable.ToArray();
+            
+            response.code = 1000;
+            response.message = "OK";
+            response.data = dishes;
+            return new ObjectResult(response);
+        }
+
+        [HttpGet("{id}")]
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult Get(long id)
+        {
+            var table = mContext.Rtable.FirstOrDefault(t => t.Id == id);
+            if (table == null)
+            {
+                response.code = 1001;
+                response.message = "Table not found";
+                response.data = null;
+
+            }
+            else
+            {
+                response.code = 1000;
+                response.message = "OK";
+                response.data = table;
+            }
+
+            return new ObjectResult(response);
+        }
+
         [HttpPost]
         [ActionName("create")]
-        public IActionResult AddTable([FromBody] Rtable table)
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult Create([FromForm] Rtable table)
         {
             if (table == null)
             {
@@ -38,48 +74,64 @@ namespace MyRestaurant.Controllers
             }
             else
             {
+                table.Available = 1;
+                table.Thumbnail = "noimg.jpg";
                 mContext.Rtable.Add(table);
                 mContext.SaveChanges();
-                response.code = 1001;
+                response.code = 1000;
                 response.message = "Add table successfully !";
                 response.data = table;
                 return new ObjectResult(response);
             }
         }
-        [HttpDelete("{location}")]
+        [HttpDelete("{id}")]
         [ActionName("delete")]
-        public IActionResult Delete(string location)
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult Delete(int id)
         {
-            var table = mContext.Rtable.FirstOrDefault(t => t.LocationTable == location);
+            var table = mContext.Rtable.FirstOrDefault(t => t.Id == id);
             if (table == null)
             {
 
                 response.code = 1001;
-                response.message = "Delete Error, Table in location is not exist!";
+                response.message = "Delete Error, Table is not exist!";
                 response.data = null;
                 return new ObjectResult(response);
             }
 
             mContext.Rtable.Remove(table);
             mContext.SaveChanges();
-            response.code = 1001;
+            response.code = 1000;
             response.message = "Delete Table Successfully !";
             response.data = table;
             return new ObjectResult(response);
 
 
         }
-        [HttpPut]
+        [HttpPut("{id}")]
         [ActionName("update")]
+<<<<<<< HEAD
         public IActionResult Update(long id, [FromBody] Rtable table)
+=======
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult Update(long id, [FromForm] Rtable table)
+>>>>>>> 445132923790bddf6641eb1b93f133bd6d0e51cf
         {
             if (table == null)
             {
-                return BadRequest();
+                response.code = 1001;
+                response.message = "Input is null";
+                response.data = null;
+                return new ObjectResult(response);
             }
 
+<<<<<<< HEAD
             var tmp = mContext.Rtable.FirstOrDefault(item => item.Id == table.Id);
             if (tmp == null)
+=======
+            var tmp = mContext.Rtable.FirstOrDefault(item => item.Id == id);
+            if(tmp == null)
+>>>>>>> 445132923790bddf6641eb1b93f133bd6d0e51cf
             {
 
                 response.code = 1001;
@@ -92,7 +144,11 @@ namespace MyRestaurant.Controllers
             tmp.Available = table.Available;
             tmp.TypeTable = table.TypeTable;
             tmp.LocationTable = table.LocationTable;
-            tmp.Thumbnail = table.Thumbnail;
+            if(table.Thumbnail != null && table.Thumbnail != "")
+            {
+                tmp.Thumbnail =   table.Thumbnail;
+            }
+           
             mContext.Rtable.Update(tmp);
             mContext.SaveChanges();
 

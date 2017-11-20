@@ -1,14 +1,20 @@
 ﻿<div class="panel panel-default">
-    <div class="panel-heading"><a href="http://localhost:8888/roleview" class="btn btn-primary">Back</a></div>
+    <div class="panel-heading"><a href="" class="btn btn-primary" id="back">Back</a></div>
     <div class="panel-body">
         <div class="col-md-6">
-            <form role="form">
+            <form role="form" id="frm">
                 <div class="form-group">
-                    <label>Role name</label>
-                    <input class="form-control" placeholder="Role name" id="name">
+                    <label>Dish</label>
+                    <select name="DishId" id="dish" class="form-control">
+                      
+                    </select>                 
+                </div>
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <input type="number" id="quantity" name="Quantiry" class="form-control" />
                     <span id="error" style="color: red"></span>
                 </div>
-                <button type="button" class="btn btn-primary" id="submit">Update</button>
+                <button type="button" class="btn btn-primary" id="submit">Create</button>
                 <button type="reset" class="btn btn-default">Reset</button>
             </form>
         </div>
@@ -20,15 +26,22 @@
         return (time1 - time2) / 1000;
     }
     function validate() {
-        var name = $('#name').val();
-        if (name == '') {
-            var error = 'Please input name';
+        var quantity = $('#quantity').val();
+        if (quantity == '') {
+            var error = 'Please input quantity';
             $('#error').html(error);
             return false;
+        }
+        if (quantity <= 0) {
+            var error = 'Quantity must be positive number';
+            $('#error').html(error);
+            return false;
+
         }
         return true;
     }
     $(document).ready(function () {
+        $('#back').attr('href', document.referrer);
         var token = localStorage.getItem("token");
         var expired = localStorage.getItem("expired");
         var login_time = localStorage.getItem("login_time");
@@ -42,41 +55,48 @@
             window.location = 'http://localhost:8888/login'
 
         }
+
         var header_string = 'Bearer ' + token;
-        var url = $(location).attr("href");
-        var id = url.substr(url.lastIndexOf('/') + 1);
-      
         $.ajax({
-            url: 'http://localhost:8888/api/role/get/'+id,
+            url: 'http://localhost:8888/api/dish/list',
             type: 'GET',
             headers: { "Authorization": header_string },
             success: function (data) {
                 if (data.code == 1000) {
-                    $('#name').val(data.data.name);
-                }             
+                    var html = ''
+                    $.each(data.data, function (i, item) {
+                        html += '<option value="' + item.id + '">' + item.name + '</option>'
+
+                    });
+                    $('#dish').html(html);
+                }
+
             },
             error: function (xhr) {
                 console.log(xhr.message);
 
             }
-
-        })
-
+        });
         $('#submit').on('click', function () {
             if (!validate()) {
                 return;
 
             }
-            var name = $('#name').val();
+            var url = $(location).attr("href");
+            var id = url.substr(url.lastIndexOf('/') + 1);
+            var dishId = $('#dish').val();
+            var quantity = $('#quantity').val();
             $.ajax({
-                url: 'http://localhost:8888/api/role/update/'+id,
-                type: 'PUT',             
+                url: 'http://localhost:8888/api/salebill/createdetail',
+                type: 'POST',
                 headers: { "Authorization": header_string },
-                data: {Name: name},
+                data: { DishId: dishId, SaleBillId: id, Quantity: quantity },
                 success: function (data) {
                     if (data.code == 1000) {
                         $('#success').html('Successfully');
                         $('#success').show();
+                        $('#quantity').val('');
+                        $('#dish').val('');
 
                     } else {
                         $('#danger').html(data.message);

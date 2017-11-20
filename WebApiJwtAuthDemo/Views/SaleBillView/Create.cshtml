@@ -1,13 +1,20 @@
 ﻿<div class="panel panel-default">
-    <div class="panel-heading"><a href="http://localhost:8888/@ViewBag.Controller" class="btn btn-primary">Back</a></div>
+    <div class="panel-heading"><a href="http://localhost:8888/salebillview" class="btn btn-primary">Back</a></div>
     <div class="panel-body">
         <div class="col-md-6">
             <form role="form">
                 <div class="form-group">
-                    <label>Role name</label>
-                    <input class="form-control" placeholder="Role name" id="name">
+                    <label>Customer Name</label>
+                    <input class="form-control" placeholder="Customer Name" id="name">
                     <span id="error" style="color: red"></span>
-                </div>             
+                </div>      
+                <div class="form-group">
+                    <label>Created By</label>
+                    <select id="employee" class="form-control">
+                        
+                    </select>
+                </div>      
+              
                 <button type="button" class="btn btn-primary" id="submit">Create</button>
                 <button type="reset" class="btn btn-default">Reset</button>               
             </form>
@@ -44,9 +51,25 @@
         }
 
         var header_string = 'Bearer ' + token;
+
+        $.ajax({
+            url: 'http://localhost:8888/api/employee/list',
+            type: 'GET',
+            headers: { "Authorization": header_string },           
+            success: function (data) {
+                if (data.code == 1000) {
+                    var html = '';
+                    $.each(data.data, function (i, item) {
+                        html += '<option value="' + item.id + '">' + item.name + '</option>';
+
+                    })
+                    $('#employee').html(html);
+                } 
+            }
+        })
+        
         $('#submit').on('click', function () {
             if (!validate()) {
-             
                 return;
 
             }  
@@ -58,7 +81,7 @@
                 data: {Name: name},
                 success: function (data) {
                     if (data.code == 1000) {
-                        $('#success').html('Successfully !! ');
+                        $('#success').html('Successfully');
                         $('#success').show();
                         $('#name').val('');
 

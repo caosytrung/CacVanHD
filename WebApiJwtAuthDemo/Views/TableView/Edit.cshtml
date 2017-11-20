@@ -1,13 +1,24 @@
 ﻿<div class="panel panel-default">
-    <div class="panel-heading"><a href="http://localhost:8888/roleview" class="btn btn-primary">Back</a></div>
+    <div class="panel-heading"><a href="http://localhost:8888/tableview" class="btn btn-primary">Back</a></div>
     <div class="panel-body">
         <div class="col-md-6">
-            <form role="form">
+            <form role="form" id="frm">
                 <div class="form-group">
-                    <label>Role name</label>
-                    <input class="form-control" placeholder="Role name" id="name">
-                    <span id="error" style="color: red"></span>
+                    <label>Number of seat</label>
+                    <input class="form-control" placeholder="Number of seat" id="seat" type="number"  name="NumberOfSeat">
+                    <span id="seat-error" style="color: red"></span>
                 </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input class="form-control" placeholder="Location" id="location" type="text" name="LocationTable">
+                    <span id="location-error" style="color: red"></span>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <input class="form-control" placeholder="Type" id="type" type="text" name="TypeTable">
+                    <span id="type-error" style="color: red"></span>
+                </div>
+
                 <button type="button" class="btn btn-primary" id="submit">Update</button>
                 <button type="reset" class="btn btn-default">Reset</button>
             </form>
@@ -45,15 +56,17 @@
         var header_string = 'Bearer ' + token;
         var url = $(location).attr("href");
         var id = url.substr(url.lastIndexOf('/') + 1);
-      
+
         $.ajax({
-            url: 'http://localhost:8888/api/role/get/'+id,
+            url: 'http://localhost:8888/api/table/get/'+id,
             type: 'GET',
             headers: { "Authorization": header_string },
             success: function (data) {
                 if (data.code == 1000) {
-                    $('#name').val(data.data.name);
-                }             
+                    $('#seat').val(data.data.numberOfSeat);
+                    $('#location').val(data.data.locationTable);
+                    $('#type').val(data.data.typeTable);
+                }
             },
             error: function (xhr) {
                 console.log(xhr.message);
@@ -67,17 +80,17 @@
                 return;
 
             }
-            var name = $('#name').val();
+          
             $.ajax({
-                url: 'http://localhost:8888/api/role/update/'+id,
-                type: 'PUT',             
+                url: 'http://localhost:8888/api/table/update/'+id,
+                type: 'PUT',
                 headers: { "Authorization": header_string },
-                data: {Name: name},
+                data: $('#frm').serialize(),
                 success: function (data) {
                     if (data.code == 1000) {
                         $('#success').html('Successfully');
                         $('#success').show();
-
+                        setTimeout(function () { window.location = "http://localhost:8888/tableview"; }, 1000);
                     } else {
                         $('#danger').html(data.message);
                         $('#danger').show();
