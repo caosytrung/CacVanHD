@@ -1,23 +1,17 @@
 ﻿<div class="panel panel-default">
-    <div class="panel-heading"><a href="http://localhost:8888/employeeview" class="btn btn-primary">Back</a></div>
+    <div class="panel-heading"><a href="http://localhost:8888/@ViewBag.Controller" class="btn btn-primary">Back</a></div>
     <div class="panel-body">
         <div class="col-md-6">
-            <form role="form"> 
+            <form role="form">
                 <div class="form-group">
-                    <label>Employee Name</label>
-                    <input class="form-control" placeholder="Employee Name" id="name">
-                    <label>Age</label>
-                    <input class="form-control" placeholder="Age" id="age">
-                    <label>Salary</label>
-                    <input class="form-control" placeholder="Salary" id="salary">
-                    <label>Type</label>
-                    <input class="form-control" placeholder="Type" id="type">
-                    <label>Phone Number</label>
-                    <input class="form-control" placeholder="PhoneNumber" id="phonenumber">
-                    <label>Address</label>
-                    <input class="form-control" placeholder="Address" id="address">
-                    <label>Position Id </label>
-                    <input class="form-control" placeholder="Position Id" id="positionid">
+                    <label>Name</label>
+                    <input class="form-control" placeholder="name" id="name">
+                    <label>Price</label>
+                    <input class="form-control" placeholder="price" id="price">
+                    <label>Quatity</label>
+                    <input class="form-control" placeholder="quatity" id="quatity">
+                    <label>Description</label>
+                    <input class="form-control" placeholder="description" id="description">
                     <span id="error" style="color: red"></span>
                 </div>             
                 <button type="button" class="btn btn-primary" id="submit">Create</button>
@@ -35,7 +29,7 @@
         var name = $('#name').val();
         if (name == '') {
             var error = 'Please input name';
-            $('#error').val(error);
+            $('#error').html(error);
             return false;
         }
         return true;
@@ -58,32 +52,31 @@
         var header_string = 'Bearer ' + token;
         $('#submit').on('click', function () {
             if (!validate()) {
+             
                 return;
 
             }  
             var name = $('#name').val();
-            var age = $('#age').val();
-            var salary = $('#salary').val();
-            var phoneNumber = $('#phonenumber').val();
-            var type = $('#type').val();
-            var positionId = $('#positionid').val();
-            var address = $('#address').val();
+            var price = $('#price').val();
+            var quatity = $('#quatity').val();
+            var description = $('#description').val();
+            var unit = 1;
+           
+
             $.ajax({
-                url: 'http://localhost:8888/api/employee/create',
+                url: 'http://localhost:8888/api/material/materialinstock/create',
                 type: 'POST',
                 headers: { "Authorization": header_string },
                 data: {
                     Name: name,
-                    Age: age,
-                    Salary: salary,
-                    Type: type,
-                    PhoneNumber: phoneNumber,
-                    PositionId: positionId,
-                    Address: address
+                    Price: price,
+                    Quatity: quatity,
+                    Description: description,
+                    UnitOfMeasureId: unit
                 },
                 success: function (data) {
                     if (data.code == 1000) {
-                        $('#success').html('Successfully');
+                        $('#success').html('Successfully !! ');
                         $('#success').show();
                         $('#name').val('');
 

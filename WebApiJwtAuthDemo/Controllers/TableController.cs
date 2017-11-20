@@ -18,9 +18,6 @@ namespace MyRestaurant.Controllers
             mContext = context;
             response = new Response();
         }
-
-       
-
         [HttpGet("{id}")]
         [Authorize(Policy = "DisneyUser")]
         public IActionResult Get(long id)

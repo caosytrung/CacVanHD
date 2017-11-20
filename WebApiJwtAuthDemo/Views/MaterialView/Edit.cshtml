@@ -1,0 +1,116 @@
+﻿<div class="panel panel-default">
+    <div class="panel-heading"><a href="http://localhost:8888/roleview" class="btn btn-primary">Back</a></div>
+    <div class="panel-body">
+        <div class="col-md-6">
+            <form role="form">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input class="form-control" placeholder="name" id="name">
+                    <label>Price</label>
+                    <input class="form-control" placeholder="price" id="price">
+                    <label>Quatity</label>
+                    <input class="form-control" placeholder="Quatity" id="quatity">
+                    <label>Description</label>
+                    <input class="form-control" placeholder="description" id="description">
+                   
+                    <span id="error" style="color: red"></span>
+                </div>
+                <button type="button" class="btn btn-primary" id="submit">Update</button>
+                <button type="reset" class="btn btn-default">Reset</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function compute_time(time1, time2) {
+        return (time1 - time2) / 1000;
+    }
+    function validate() {
+        var name = $('#name').val();
+        if (name == '') {
+            var error = 'Please input name';
+            $('#error').html(error);
+            return false;
+        }
+        return true;
+    }
+    $(document).ready(function () {
+        var token = localStorage.getItem("token");
+        var expired = localStorage.getItem("expired");
+        var login_time = localStorage.getItem("login_time");
+        var d = $.now();
+        var diff = compute_time(d, login_time);
+        if (diff > 3600) {
+            token = '';
+
+        }
+        if (token == '') {
+            window.location = 'http://localhost:8888/login'
+
+        }
+        var header_string = 'Bearer ' + token;
+        var url = $(location).attr("href");
+        var id = url.substr(url.lastIndexOf('/') + 1);
+      
+        $.ajax({
+            url: 'http://localhost:8888/api/material/get/'+id,
+            type: 'GET',
+            headers: { "Authorization": header_string },
+            success: function (data) {
+                if (data.code == 1000) {
+                    $('#name').val(data.data.name);
+                    $('#price').val(data.data.price);
+                    $('#quatity').val(data.data.quatity);
+                    $('#description').val(data.data.description);
+                }             
+            },
+            error: function (xhr) {
+                console.log(xhr.message);
+
+            }
+
+        })
+
+        $('#submit').on('click', function () {
+            if (!validate()) {
+                return;
+
+            }
+            var name = $('#name').val();
+            var price = $('#price').val();
+            var quatity = $('#quatity').val();
+            var description = $('#description').val();
+            var unit = 1;
+
+            $.ajax({
+                url: 'http://localhost:8888/api/material/materialinstock/update/'+id,
+                type: 'PUT',             
+                headers: { "Authorization": header_string },
+                data: {
+                    Name: name,
+                    Price: price,
+                    Quatity: quatity,
+                    Description: description,
+                    UnitOfMeasureId: unit
+
+                },
+                success: function (data) {
+                    if (data.code == 1000) {
+                        $('#success').html('Successfully');
+                        $('#success').show();
+
+                    } else {
+                        $('#danger').html(data.message);
+                        $('#danger').show();
+
+                    }
+
+                }
+            })
+    });
+
+
+
+    });
+</script>
