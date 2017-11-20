@@ -21,7 +21,7 @@ namespace MyRestaurant.Controllers
 
         [HttpPost]
         [ActionName("create")]
-        public IActionResult AddTable([FromBody] Employee employee)
+        public IActionResult Create([FromBody] Employee employee)
         {
             if (employee == null)
             {
