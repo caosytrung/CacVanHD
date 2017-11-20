@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MyRestaurant.Models;
 using MyRestaurant.Options;
 using System;
@@ -21,7 +22,8 @@ namespace MyRestaurant.Controllers
 
         [HttpPost]
         [ActionName("create")]
-        public IActionResult AddTable([FromBody] Employee employee)
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult AddTable([FromForm] Employee employee)
         {
             if (employee == null)
             {
@@ -39,13 +41,13 @@ namespace MyRestaurant.Controllers
             }
             else
             {
-                if(employee.Name == null || employee.PhoneNumber == null ||
+                if (employee.Name == null || employee.PhoneNumber == null ||
                     employee.Salary == null || employee.Type == null)
                 {
                     response.code = 1001;
                     response.message = "Invalid input form !";
                     response.data = null;
-                    return new ObjectResult(response); 
+                    return new ObjectResult(response);
                 }
                 else
                 {
@@ -57,12 +59,13 @@ namespace MyRestaurant.Controllers
                     return new ObjectResult(response);
 
                 }
-              
+
             }
 
         }
         [HttpDelete("{id}")]
         [ActionName("delete")]
+        [Authorize(Policy = "DisneyUser")]
         public IActionResult Delete(int id)
         {
             var employee = mContext.Employee.FirstOrDefault(t => t.Id == id);
@@ -84,9 +87,10 @@ namespace MyRestaurant.Controllers
 
 
         }
-        [HttpPut]
+        [HttpPut("{id}")]
         [ActionName("update")]
-        public IActionResult Update([FromBody] Employee employee)
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult Update(long id,[FromForm] Employee employee)
         {
 
             if (employee == null)
@@ -99,7 +103,7 @@ namespace MyRestaurant.Controllers
 
 
 
-            var tmp = mContext.Employee.FirstOrDefault(item => item.Id == employee.Id);
+            var tmp = mContext.Employee.FirstOrDefault(item => item.Id == id);
             if (tmp == null)
             {
                 response.code = 1001;
@@ -122,6 +126,7 @@ namespace MyRestaurant.Controllers
             tmp.Salary = employee.Salary;
             tmp.Type = employee.Type;
             tmp.Address = employee.Address;
+            tmp.Age = employee.Age;
             mContext.Employee.Update(tmp);
             mContext.SaveChanges();
 
@@ -133,7 +138,62 @@ namespace MyRestaurant.Controllers
             return new ObjectResult(response);
         }
 
+        [HttpGet]
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult List()
+        {
+            System.Diagnostics.Debug.Write("roiiii");
+            var employees = mContext.Employee.ToList();
+            if (employees.Count() == 0)
+            {
+                response.setDatas(1001, "Employees  is empty set !", null);
+                return new ObjectResult(response);
+            }
+            response.setDatas(1000, "Query successfully !!", employees);
 
- 
+            return new ObjectResult(response);
+        }
+
+        [HttpGet("{id}")]
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult Get(long id)
+        {
+            System.Diagnostics.Debug.Write("Davaoroiii");
+            //if (!id.HasValue) {
+            //    response.setDatas(1001, "Please pass value for get data !", null);
+            //    return new ObjectResult(response);
+            //}
+            var employee = mContext.Employee.FirstOrDefault(item => item.Id == id);
+            if (employee == null)
+            {
+                response.setDatas(1001, "No employee valid !", null);
+                return new ObjectResult(response);
+            }
+            response.setDatas(1000, "Query Success !", employee);
+            return new ObjectResult(response);
+
+
+        }
+
+        [HttpPut("{id}")]
+        [Authorize(Policy = "DisneyUser")]
+        public IActionResult TimeKeeping(long id)
+        {
+            var tmp = mContext.TimeKeeping.SingleOrDefault(item => item.EmployeeId == id);
+            if (tmp == null)
+            {
+                response.setDatas(1001, "EmployeeId is invalid !", tmp);
+                return new ObjectResult(response);
+            }
+            tmp.WorkHour += 8;
+            mContext.TimeKeeping.Update(tmp);
+            mContext.SaveChanges();
+            response.setDatas(1000, "Update Work hour Success !", tmp);
+            return new ObjectResult(response);
+
+        }
+
+
+
     }
 }

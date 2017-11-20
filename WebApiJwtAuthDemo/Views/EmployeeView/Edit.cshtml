@@ -1,0 +1,153 @@
+﻿    <div class="panel panel-default">
+    <div class="panel-heading"><a href="http://localhost:8888/roleview" class="btn btn-primary">Back</a></div>
+    <div class="panel-body">
+        <div class="col-md-6">
+            <form role="form">
+                <div class="form-group">
+                    <label>Employee Name</label>
+                    <input class="form-control" placeholder="Employee Name" id="name">
+                    <span id="name-error" style="color: red"></span>
+                </div>
+                <div class="form-group">
+                    <label>Age</label>
+                    <input class="form-control" placeholder="Age" id="age">
+                    <span id="age-error" style="color: red"></span>
+                </div>
+                <div class="form-group">
+                    <label>Salary</label>
+                    <input class="form-control" placeholder="Salary" id="salary">
+                    <span id="salary-error" style="color: red"></span>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <input class="form-control" placeholder="Type" id="type">
+                    <span id="type-error" style="color: red"></span>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input class="form-control" placeholder="PhoneNumber" id="phonenumber">
+                    <span id="phone-error" style="color: red"></span>
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <input class="form-control" placeholder="Address" id="address">
+                </div>
+                <div class="form-group">
+                    <label>Position Id </label>
+                    <input class="form-control" placeholder="Position Id" id="positionid">
+                </div>
+               
+                <button type="button" class="btn btn-primary" id="submit">Update</button>
+                <button type="reset" class="btn btn-default">Reset</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function compute_time(time1, time2) {
+        return (time1 - time2) / 1000;
+    }
+    function validate() {
+       
+        var name = $('#name').val();
+        var age = $('#age').val();
+        var salary = $('#salary').val();
+        var phoneNumber = $('#phonenumber').val();
+        var type = $('#type').val();
+        var positionId = $('#positionid').val();
+        var address = $('#address').val();
+      
+        if (name == '') {
+            var error = 'Please input name';
+            $('#name-error').html(error);
+            return false;
+        }
+       
+        return true;
+    }
+    $(document).ready(function () {
+        var token = localStorage.getItem("token");
+        var expired = localStorage.getItem("expired");
+        var login_time = localStorage.getItem("login_time");
+        var d = $.now();
+        var diff = compute_time(d, login_time);
+        if (diff > 3600) {
+            token = '';
+
+        }
+        if (token == '') {
+            window.location = 'http://localhost:8888/login'
+
+        }
+        var header_string = 'Bearer ' + token;
+        var url = $(location).attr("href");
+        var id = url.substr(url.lastIndexOf('/') + 1);
+      
+        $.ajax({
+            url: 'http://localhost:8888/api/employee/get/'+id,
+            type: 'GET',
+            headers: { "Authorization": header_string },
+            success: function (data) {
+                if (data.code == 1000) {
+                    $('#name').val(data.data.name);
+                    $('#age').val(data.data.age);
+                    $('#salary').val(data.data.salary);
+                    $('#type').val(data.data.type);
+                    $('#positionid').val(data.data.positionId);
+                    $('#phonenumber').val(data.data.phoneNumber);
+                    $('#address').val(data.data.address);
+                }             
+            },
+            error: function (xhr) {
+                console.log(xhr.message);
+
+            }
+
+        })
+
+        $('#submit').on('click', function () {
+            if (!validate()) {
+              
+                return;
+
+            }
+            var name = $('#name').val();
+            var age = $('#age').val();
+            var salary = $('#salary').val();
+            var phoneNumber = $('#phonenumber').val();
+            var type = $('#type').val();
+            var positionId = $('#positionid').val();
+            var address = $('#address').val();
+            $.ajax({
+                url: 'http://localhost:8888/api/employee/update/'+id,
+                type: 'PUT',             
+                headers: { "Authorization": header_string },
+                data: {
+                    Name: name,
+                    Age: age,
+                    Salary: salary,
+                    Type: type,
+                    PhoneNumber: phoneNumber,
+                    PositionId: positionId,
+                    Address: address
+                },
+                success: function (data) {
+                    if (data.code == 1000) {
+                        $('#success').html('Successfully');
+                        $('#success').show();
+
+                    } else {
+                        $('#danger').html(data.message);
+                        $('#danger').show();
+
+                    }
+
+                }
+            })
+    });
+
+
+
+    });
+</script>

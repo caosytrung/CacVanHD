@@ -39,7 +39,7 @@ namespace MyRestaurant.Controllers
                 response.data = null;
                 return new ObjectResult(response);
             }
-            else if(material.Price == null || material.Quatity == null || material.Name == null  )
+            else if (material.Price == null || material.Quatity == null || material.Name == null)
             {
                 System.Diagnostics.Debug.WriteLine(material.Price + " aaaaaaaaaaaa");
                 response.code = 1001;
@@ -47,7 +47,7 @@ namespace MyRestaurant.Controllers
                 response.data = null;
                 return new ObjectResult(response);
 
-               
+
             }
             else
             {
@@ -109,7 +109,7 @@ namespace MyRestaurant.Controllers
                 response.data = null;
                 return new ObjectResult(response);
             }
-            if(unitOM == null)
+            if (unitOM == null)
             {
                 response.code = 1001;
                 response.message = " Material is not Found!";
@@ -117,7 +117,7 @@ namespace MyRestaurant.Controllers
                 return new ObjectResult(response);
             }
             if (material.Name == null || material.Price == null ||
-                material.Quatity == null || material.Description == null )
+                material.Quatity == null || material.Description == null)
             {
                 response.code = 1001;
                 response.message = " Invalid Form!";
@@ -130,7 +130,7 @@ namespace MyRestaurant.Controllers
             tmp.UnitOfMeasureId = material.UnitOfMeasureId;
             tmp.Quatity = material.Quatity;
             tmp.Thumbnail = material.Thumbnail;
-         
+
             mContext.MaterialInStock.Update(tmp);
             mContext.SaveChanges();
 
@@ -163,9 +163,9 @@ namespace MyRestaurant.Controllers
                 return new ObjectResult(response);
             }
 
-             if (materialBill.Total == null )
+            if (materialBill.Total == null)
             {
-           //     System.Diagnostics.Debug.WriteLine(material.Price + " aaaaaaaaaaaa");
+                //     System.Diagnostics.Debug.WriteLine(material.Price + " aaaaaaaaaaaa");
                 response.code = 1001;
                 response.message = "Invalid Form";
                 response.data = null;
@@ -273,11 +273,11 @@ namespace MyRestaurant.Controllers
             }
             MaterialBill materialBill = mContext.MaterialBill.SingleOrDefault(item => item.Id ==
             materialBillDetail.MaterialBillId);
-           
+
 
 
             // Rtable tmp = mContext.Rtable.Where(item => item.LocationTable == table.LocationTable).SingleOrDefault();
-           
+
             if (materialBill == null)
             {
 
@@ -297,9 +297,9 @@ namespace MyRestaurant.Controllers
                 return new ObjectResult(response);
             }
 
-            if (materialBillDetail.Quantity == null )
+            if (materialBillDetail.Quantity == null)
             {
-               
+
                 response.code = 1001;
                 response.message = "Invalid Form";
                 response.data = null;
@@ -321,6 +321,41 @@ namespace MyRestaurant.Controllers
                 return new ObjectResult(response);
 
             }
+        }
+
+        [HttpGet]
+        [ActionName("list")]
+        public IActionResult List()
+        {
+            var employees = mContext.MaterialInStock.ToList();
+            if (employees.Count() == 0)
+            {
+                response.setDatas(1001, "Material  is empty set !", null);
+                return new ObjectResult(response);
+            }
+            response.setDatas(1000, "Query successfully !!", employees);
+
+            return new ObjectResult(response);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult Get(long id)
+        {
+            System.Diagnostics.Debug.Write("Davaoroiii");
+            //if (!id.HasValue) {
+            //    response.setDatas(1001, "Please pass value for get data !", null);
+            //    return new ObjectResult(response);
+            //}
+            var material = mContext.MaterialInStock.FirstOrDefault(item => item.Id == id);
+            if (material == null)
+            {
+                response.setDatas(1001, "No material valid !", null);
+                return new ObjectResult(response);
+            }
+            response.setDatas(1000, "Query Success !", material);
+            return new ObjectResult(response);
+
+
         }
 
     }
